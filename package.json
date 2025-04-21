@@ -9,19 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^7.0.2",
+    "@mui/material-nextjs": "^7.0.2",
+    "@mui/x-charts": "8.0.0-beta.3",
+    "next": "15.3.1-canary.14",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.3.1-canary.14"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@next/bundle-analyzer": "^15.3.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.1-canary.14",
-    "@eslint/eslintrc": "^3"
+    "typescript": "^5"
   }
 }

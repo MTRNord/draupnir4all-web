@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
+import analyzer from "@next/bundle-analyzer";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    ppr: 'incremental',
+    useCache: true,
+  }
 };
 
-export default nextConfig;
+const withBundleAnalyzer = analyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
+
+module.exports = withBundleAnalyzer(nextConfig)
