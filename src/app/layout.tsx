@@ -1,35 +1,27 @@
-import type { Metadata } from "next";
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
-import { Roboto } from 'next/font/google';
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
+import type React from "react"
+import "./globals.css"
+import { Inter } from "next/font/google"
+import { ThemeProvider } from "@/components/theme-provider"
 
-const roboto = Roboto({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-roboto',
-});
+const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "Draupnir4All Admin",
-  description: "Admin installation for Draupnir4All",
-};
+export const metadata = {
+  title: "Matrix Moderator - Secure Moderation for Matrix.org",
+  description: "Powerful moderation tools for Matrix.org communities using Draupnir bots.",
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={roboto.variable}>
-      <body style={{ margin: 0 }}>
-        <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            {children}
-          </ThemeProvider>
-        </AppRouterCacheProvider>
+    <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
+      <body className={inter.className}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+          {children}
+        </ThemeProvider>
       </body>
-    </html>
-  );
+    </html >
+  )
 }

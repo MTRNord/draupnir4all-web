@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MatrixLoginForm } from "@/components/matrix-login-form"
 
-export default function LoginPage() {
+export default function RegisterPage() {
   const router = useRouter()
   const [matrixId, setMatrixId] = useState("")
   const [step, setStep] = useState<"initial" | "login" | "verifying" | "error">("initial")
@@ -38,7 +38,7 @@ export default function LoginPage() {
       // For demo purposes, simulate a successful verification
       await new Promise((resolve) => setTimeout(resolve, 1500))
 
-      // Redirect to dashboard after successful login
+      // Redirect to dashboard after successful registration
       router.push("/dashboard")
     } catch (error) {
       console.error("Token verification failed", error)
@@ -60,8 +60,10 @@ export default function LoginPage() {
       <main className="flex-1 flex items-center justify-center p-4">
         <Card className="w-full max-w-md border-gray-800 bg-gray-950">
           <CardHeader>
-            <CardTitle className="text-2xl">Log in with Matrix</CardTitle>
-            <CardDescription className="text-gray-400">Access your Draupnir moderation dashboard</CardDescription>
+            <CardTitle className="text-2xl">Register with Matrix</CardTitle>
+            <CardDescription className="text-gray-400">
+              Use your Matrix account to register for Draupnir4All
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {step === "initial" && (
@@ -87,14 +89,14 @@ export default function LoginPage() {
             {step === "verifying" && (
               <div className="flex flex-col items-center justify-center py-6 space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
-                <p className="text-gray-300">Logging in...</p>
-                <p className="text-xs text-gray-400">Accessing your Draupnir4All account</p>
+                <p className="text-gray-300">Registering your account...</p>
+                <p className="text-xs text-gray-400">Setting up your Draupnir4All account</p>
               </div>
             )}
 
             {step === "error" && (
               <div className="rounded-md bg-red-900/20 border border-red-800 p-4 text-center">
-                <p className="text-red-300 font-medium">Login Failed</p>
+                <p className="text-red-300 font-medium">Registration Failed</p>
                 <p className="text-sm text-red-200 mt-1">{errorMessage}</p>
                 <Button
                   variant="outline"
@@ -106,24 +108,16 @@ export default function LoginPage() {
               </div>
             )}
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter>
             {step === "initial" && (
-              <>
-                <Button
-                  className="w-full bg-purple-600 text-white hover:bg-purple-700"
-                  onClick={startMatrixAuth}
-                  disabled={!matrixId}
-                >
-                  Continue
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <p className="text-center text-sm text-gray-400">
-                  Don&apos;t have a Draupnir bot yet?{" "}
-                  <Link href="/register" className="text-purple-400 hover:text-purple-300">
-                    Register here
-                  </Link>
-                </p>
-              </>
+              <Button
+                className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                onClick={startMatrixAuth}
+                disabled={!matrixId}
+              >
+                Continue
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             )}
 
             {step === "verifying" && (
