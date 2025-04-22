@@ -56,7 +56,7 @@ export default function Home() {
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">Draupnir4All</h1>
                   <p className="max-w-[600px] text-gray-300 md:text-xl">
-                    Self-service moderation for Matrix.org communities. Deploy your own Draupnir bot instance and
+                    Self-service moderation for Matrix communities. Deploy your own Draupnir bot instance and
                     protect your spaces with advanced filtering, reporting, and management.
                   </p>
                 </div>
@@ -96,11 +96,11 @@ export default function Home() {
                     </div>
                     <div className="flex items-center gap-2 rounded-md bg-gray-900 p-2">
                       <Ban className="h-4 w-4 text-red-500" />
-                      <span className="text-xs">User @spammer:matrix.org banned from 3 rooms</span>
+                      <span className="text-xs">User @spammer:example.com banned from 3 rooms</span>
                     </div>
                     <div className="flex items-center gap-2 rounded-md bg-gray-900 p-2">
                       <CheckCircle className="h-4 w-4 text-green-500" />
-                      <span className="text-xs">Moderation report resolved by @admin:matrix.org</span>
+                      <span className="text-xs">Moderation report resolved by @admin:example.com</span>
                     </div>
                     <div className="flex items-center gap-2 rounded-md bg-gray-900 p-2">
                       <Eye className="h-4 w-4 text-blue-500" />
@@ -155,7 +155,7 @@ export default function Home() {
               <div className="space-y-2">
                 <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Draupnir Features</h2>
                 <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl">
-                  Powerful moderation tools designed specifically for Matrix.org communities
+                  Powerful moderation tools designed specifically for Matrix communities
                 </p>
               </div>
             </div>
@@ -181,14 +181,13 @@ export default function Home() {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                    <CardTitle>Abuse Detection</CardTitle>
+                    <CardTitle>Placeholder TODO</CardTitle>
                   </div>
-                  <CardDescription className="text-gray-400">Automatically detect and respond to abuse</CardDescription>
+                  <CardDescription className="text-gray-400">Placeholder TODO</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-300">
-                    Identify spam, harassment, and other abusive behavior with advanced pattern matching and machine
-                    learning algorithms. Set automated responses based on severity.
+                    Meow Meow Meow
                   </p>
                 </CardContent>
               </Card>
@@ -213,12 +212,11 @@ export default function Home() {
                     <BarChart className="h-5 w-5 text-green-500" />
                     <CardTitle>Analytics Dashboard</CardTitle>
                   </div>
-                  <CardDescription className="text-gray-400">Monitor moderation activity and trends</CardDescription>
+                  <CardDescription className="text-gray-400">Monitor moderation activity</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-300">
-                    Track moderation actions, abuse patterns, and community health metrics. Generate reports and
-                    identify trends to improve your moderation strategy.
+                    Track moderation actions, abuse patterns, and community reports.
                   </p>
                 </CardContent>
               </Card>
@@ -232,8 +230,7 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-300">
-                    Define custom moderation rules and policies specific to your community&apos;s needs. Set up automated
-                    actions based on rule violations and severity levels.
+                    Use powerful Draupnir Protections to configure the bot for your needs.
                   </p>
                 </CardContent>
               </Card>
@@ -241,14 +238,13 @@ export default function Home() {
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <Eye className="h-5 w-5 text-orange-500" />
-                    <CardTitle>Monitoring Tools</CardTitle>
+                    <CardTitle>Placeholder TODO</CardTitle>
                   </div>
-                  <CardDescription className="text-gray-400">Keep an eye on your Matrix spaces</CardDescription>
+                  <CardDescription className="text-gray-400">Placeholder TODO</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-gray-300">
-                    Monitor room activity, user behavior, and potential threats in real-time. Receive alerts and
-                    notifications for suspicious activity requiring attention.
+                    Meow Meow Meow
                   </p>
                 </CardContent>
               </Card>
@@ -294,7 +290,7 @@ export default function Home() {
             <span className="text-sm font-medium">Draupnir4All</span>
           </div>
           <p className="text-center text-sm text-gray-500 md:text-left">
-            © 2025 Draupnir4All. All rights reserved. Built for the Matrix.org ecosystem.
+            © 2025 Draupnir4All. All rights reserved. Built for the Matrix ecosystem.
           </p>
           <div className="flex gap-4">
             <Link className="text-sm font-medium text-gray-500 transition-colors hover:text-white" href="#">
