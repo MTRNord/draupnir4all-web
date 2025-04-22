@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Shield, ArrowRight, Loader2 } from "lucide-react"
 
@@ -10,11 +9,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { MatrixLoginForm } from "@/components/matrix-login-form"
+import { useSession } from "@/contexts/session-context"
 
 export default function RegisterPage() {
-  const router = useRouter()
+  const { register, isLoading } = useSession()
   const [matrixId, setMatrixId] = useState("")
-  const [step, setStep] = useState<"initial" | "login" | "verifying" | "error">("initial")
+  const [step, setStep] = useState<"initial" | "login" | "error">("initial")
   const [errorMessage, setErrorMessage] = useState("")
 
   const startMatrixAuth = () => {
@@ -23,26 +23,12 @@ export default function RegisterPage() {
   }
 
   const handleLoginSuccess = async (token: string) => {
-    setStep("verifying")
-
     try {
-      // In a real implementation, send the token to your backend for verification
-      // const response = await fetch('/api/verify-matrix-token', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ matrixId, token })
-      // })
-      // const data = await response.json()
-      // if (!data.success) throw new Error(data.error || 'Verification failed')
-
-      // For demo purposes, simulate a successful verification
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Redirect to dashboard after successful registration
-      router.push("/dashboard")
+      // Use the register function from session context
+      await register(matrixId)
     } catch (error) {
-      console.error("Token verification failed", error)
-      setErrorMessage(error instanceof Error ? error.message : "Verification failed")
+      console.error("Registration failed", error)
+      setErrorMessage(error instanceof Error ? error.message : "Registration failed")
       setStep("error")
     }
   }
@@ -86,7 +72,7 @@ export default function RegisterPage() {
               <MatrixLoginForm matrixId={matrixId} onSuccess={handleLoginSuccess} onCancel={() => setStep("initial")} />
             )}
 
-            {step === "verifying" && (
+            {isLoading && (
               <div className="flex flex-col items-center justify-center py-6 space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
                 <p className="text-gray-300">Registering your account...</p>
@@ -120,7 +106,7 @@ export default function RegisterPage() {
               </Button>
             )}
 
-            {step === "verifying" && (
+            {isLoading && (
               <Button className="w-full" disabled>
                 Please wait...
               </Button>

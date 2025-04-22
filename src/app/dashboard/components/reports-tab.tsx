@@ -1,33 +1,46 @@
+"use client"
+
+import { useState } from "react"
+import { AlertTriangle, CheckCircle, MessageSquare, UserPlus, Filter, Ban } from "lucide-react"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { BlurredText } from "@/components/blurred-text"
+import { BlurredImage } from "@/components/blurred-image"
 import {
     Dialog,
     DialogContent,
     DialogDescription,
-
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "../ui/dialog"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { MessageSquare, UserPlus, Badge, CheckCircle, Filter, Ban, AlertTriangle } from "lucide-react"
-import { BlurredImage } from "../blurred-image"
-import { BlurredText } from "../blurred-text"
-import { Button } from "../ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui/card"
+} from "@/components/ui/dialog"
+import { Report } from "../page";
 
-interface ReportsProps {
-    selectedReport: string | null;
-    reports: any[];
-    setSelectedReport: (report: string) => void;
+interface ReportsTabProps {
+    reports: Report[]
 }
 
-export default function Reports({ selectedReport, reports, setSelectedReport }: ReportsProps) {
+export function ReportsTab({ reports }: ReportsTabProps) {
+    const [selectedReport, setSelectedReport] = useState<string | null>(null)
+    const [filter, setFilter] = useState("all")
+
+    const filteredReports =
+        filter === "all"
+            ? reports
+            : filter === "high"
+                ? reports.filter((r) => r.priority === "high")
+                : reports.filter((r) => r.type === filter)
+
     return (
         <Card className="border-gray-800 bg-gray-950">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle>Active Reports</CardTitle>
                     <div className="flex items-center gap-2">
-                        <Select defaultValue="all">
+                        <Select defaultValue="all" onValueChange={setFilter}>
                             <SelectTrigger className="h-8 w-[120px] bg-gray-900 border-gray-800">
                                 <SelectValue placeholder="Filter" />
                             </SelectTrigger>
@@ -46,8 +59,8 @@ export default function Reports({ selectedReport, reports, setSelectedReport }: 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-4">
                         <h3 className="text-sm font-medium text-gray-400">Report List</h3>
-                        {reports.length > 0 ? (
-                            reports.map((report) => (
+                        {filteredReports.length > 0 ? (
+                            filteredReports.map((report) => (
                                 <div
                                     key={report.id}
                                     className={`p-3 rounded-md border cursor-pointer transition-colors ${selectedReport === report.id
@@ -170,9 +183,7 @@ export default function Reports({ selectedReport, reports, setSelectedReport }: 
                                                                     width={400}
                                                                     height={300}
                                                                 />
-                                                                <p className="text-xs text-gray-500 mt-1">
-                                                                    Image: {report.subject.content.body}
-                                                                </p>
+                                                                <p className="text-xs text-gray-500 mt-1">Image: {report.subject.content.body}</p>
                                                             </div>
                                                         ) : (
                                                             <p className="text-sm">Unsupported content type</p>

@@ -1,4 +1,5 @@
-import { Checkbox } from "../ui/checkbox"
+"use client";
+import { Checkbox } from "@/components/ui/checkbox"
 import {
     Dialog,
     DialogContent,
@@ -7,24 +8,26 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "../ui/dialog";
-import { ScrollArea } from "../ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Ban, Badge } from "lucide-react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
-import { Label } from "../ui/label"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label"
+import { useState } from "react";
+import { PolicyList } from "../page";
 
 interface BansProps {
-    policyLists: any[];
-    selectedPolicyList: string | null;
-    setSelectedPolicyList: (id: string) => void;
-    selectedList: any;
+    policyLists: PolicyList[];
 }
 
-export default function Bans({ policyLists, selectedPolicyList, setSelectedPolicyList, selectedList }: BansProps) {
+export default function Bans({ policyLists }: BansProps) {
+    const [selectedPolicyList, setSelectedPolicyList] = useState("global")
+    const selectedList = policyLists.find((list) => list.id === selectedPolicyList) || policyLists[0] || { entries: [] }
+
     return (
         <Card className="border-gray-800 bg-gray-950">
             <CardHeader className="pb-2">

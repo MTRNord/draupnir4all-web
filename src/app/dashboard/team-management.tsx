@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import AddProtectedRoom from "@/components/dashboard/modals/add-protected-room";
+import AddProtectedRoom from "./components/modals/add-protected-room";
 
 export interface Team {
     id: string;

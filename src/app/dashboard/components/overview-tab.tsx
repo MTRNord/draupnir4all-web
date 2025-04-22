@@ -1,3 +1,8 @@
+"use client"
+import { Plus, X, AlertTriangle, Ban, CheckCircle } from "lucide-react"
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
@@ -6,26 +11,27 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "../ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-import { Label } from "../ui/label"
-import { Plus, Ban, AlertTriangle, CheckCircle, X } from "lucide-react";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Input } from "../ui/input";
-import { Team } from "@/app/dashboard/team-management";
-import AddProtectedRoom from "./modals/add-protected-room";
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { PolicyList, Report } from "../page"
 
-interface OverviewProps {
-    selectedTeam: Team;
-    reports: any[];
-    policyLists: any[];
+interface Team {
+    id: string
+    name: string
+    rooms: string[]
 }
 
-export default function Overview({ selectedTeam, reports, policyLists }: OverviewProps) {
+interface OverviewTabProps {
+    selectedTeam: Team
+    policyLists: PolicyList[]
+    reports: Report[]
+}
 
+export function OverviewTab({ selectedTeam, policyLists, reports }: OverviewTabProps) {
     return (
-        <>
+        <div className="space-y-8">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <Card className="border-gray-800 bg-gray-950">
                     <CardHeader className="pb-2">
@@ -35,7 +41,53 @@ export default function Overview({ selectedTeam, reports, policyLists }: Overvie
                         <div className="text-2xl font-bold">{selectedTeam.rooms.length}</div>
                         <div className="flex justify-between items-center">
                             <p className="text-xs text-gray-400">Monitored by this bot</p>
-                            <AddProtectedRoom />
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-purple-400">
+                                        <Plus className="h-3 w-3 mr-1" />
+                                        Add Room
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-950 border-gray-800">
+                                    <DialogHeader>
+                                        <DialogTitle>Add Protected Room</DialogTitle>
+                                        <DialogDescription className="text-gray-400">
+                                            Add a Matrix room to be monitored by this bot
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 py-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="room-id">Room ID or Alias</Label>
+                                            <Input id="room-id" placeholder="#roomname:matrix.org" className="bg-gray-900 border-gray-800" />
+                                            <p className="text-xs text-gray-400">
+                                                Enter a room ID or alias. The bot must be invited to this room.
+                                            </p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label>Protection Level</Label>
+                                            <Select defaultValue="standard">
+                                                <SelectTrigger className="bg-gray-900 border-gray-800">
+                                                    <SelectValue placeholder="Select protection level" />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-gray-900 border-gray-800">
+                                                    <SelectItem value="minimal">Minimal - Report only</SelectItem>
+                                                    <SelectItem value="standard">Standard - Report and auto-moderate</SelectItem>
+                                                    <SelectItem value="strict">Strict - Aggressive moderation</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button
+                                            variant="outline"
+                                            className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button className="bg-purple-600 text-white hover:bg-purple-700">Add Room</Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </CardContent>
                 </Card>
@@ -45,9 +97,7 @@ export default function Overview({ selectedTeam, reports, policyLists }: Overvie
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{reports.length}</div>
-                        <p className="text-xs text-gray-400">
-                            {reports.filter((r) => r.priority === "high").length} high priority
-                        </p>
+                        <p className="text-xs text-gray-400">{reports.filter((r) => r.priority === "high").length} high priority</p>
                     </CardContent>
                 </Card>
                 <Card className="border-gray-800 bg-gray-950">
@@ -124,7 +174,17 @@ export default function Overview({ selectedTeam, reports, policyLists }: Overvie
                                 <CardTitle>Protected Rooms</CardTitle>
                                 <CardDescription className="text-gray-400">Rooms monitored by this bot</CardDescription>
                             </div>
-                            <AddProtectedRoom filled />
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button size="sm" className="bg-purple-600 text-white hover:bg-purple-700">
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add Room
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-950 border-gray-800">
+                                    {/* Same content as the other add room dialog */}
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -145,7 +205,6 @@ export default function Overview({ selectedTeam, reports, policyLists }: Overvie
                     </CardContent>
                 </Card>
             </div>
-        </>
-    );
-
+        </div>
+    )
 }
