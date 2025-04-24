@@ -1,18 +1,43 @@
-"use client"
-
 import { useState } from "react"
-import { Filter, TrendingUp, Users } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { TrendingUp } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
 
 import { PieChart } from "@/components/analytics/pie-chart"
 import { Heatmap } from "@/components/analytics/heatmap"
 import { BarChart } from "@/components/analytics/bar-chart"
 import { HorizontalBarChart } from "@/components/analytics/horizontal-bar-chart"
+
+interface InfoCardWithTrendProps {
+    title: string;
+    changePercent: number;
+    value: string | number;
+    trendColorOverride?: string;
+}
+
+function InfoCardWithTrend({ title, changePercent, value, trendColorOverride }: InfoCardWithTrendProps) {
+    const trendColor = changePercent > 0 ? "text-green-400" : "text-red-400"
+    const trendIcon = changePercent > 0 ? <TrendingUp className="h-3.5 w-3.5 mr-1" /> : <TrendingUp className="h-3.5 w-3.5 mr-1 rotate-180" />
+    const trendText = changePercent > 0 ? `+${changePercent}% from previous period` : `${changePercent}% from previous period`
+    const trendClass = trendColorOverride || trendColor
+
+    return (
+        <Card className="border-gray-800 bg-gray-950">
+            <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="text-2xl font-bold">{value}</div>
+                <div className={`flex items-center text-xs ${trendClass}`}>
+                    {trendIcon}
+                    <span>{trendText}</span>
+                </div>
+            </CardContent>
+        </Card>
+    )
+}
 
 // Mock data for heatmaps
 const generateHeatmapData = (intensity = 1, seed = 42) => {
@@ -102,12 +127,9 @@ interface AnalyticsDashboardProps {
 export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
     const [timeRange, setTimeRange] = useState("year")
     const [heatmapType, setHeatmapType] = useState("reports")
-    const router = useRouter()
 
-    const handleViewAllBannedServers = () => {
-        // Navigate to the bans tab
-        router.push("/dashboard?tab=bans")
-    }
+
+    const reportChangePercent = 12
 
     return (
         <div className="space-y-4">
@@ -125,62 +147,15 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
                             <SelectItem value="all">All Time</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" size="sm" className="h-8 border-gray-800 text-gray-400 hover:text-white">
-                        <Filter className="h-3.5 w-3.5 mr-1" />
-                        Filter
-                    </Button>
+
                 </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="border-gray-800 bg-gray-950">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Total Reports</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">247</div>
-                        <div className="flex items-center text-xs text-green-400">
-                            <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                            <span>+12% from previous period</span>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="border-gray-800 bg-gray-950">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Bans Issued</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">98</div>
-                        <div className="flex items-center text-xs text-red-400">
-                            <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                            <span>+5% from previous period</span>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="border-gray-800 bg-gray-950">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Unique Reporters</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">42</div>
-                        <div className="flex items-center text-xs text-green-400">
-                            <TrendingUp className="h-3.5 w-3.5 mr-1" />
-                            <span>+8% from previous period</span>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card className="border-gray-800 bg-gray-950">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-sm font-medium">Avg. Response Time</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold">1.4h</div>
-                        <div className="flex items-center text-xs text-green-400">
-                            <TrendingUp className="h-3.5 w-3.5 mr-1 rotate-180" />
-                            <span>-15% from previous period</span>
-                        </div>
-                    </CardContent>
-                </Card>
+                <InfoCardWithTrend title="Total Reports" changePercent={12} value={247} trendColorOverride={reportChangePercent > 0 ? "text-red-400" : "text-green-400"} />
+                <InfoCardWithTrend title="Bans Issued" changePercent={5} value={98} />
+                <InfoCardWithTrend title="Unique Reporters" changePercent={8} value={42} />
+                <InfoCardWithTrend title="Avg. Response Time" changePercent={-15} value="1.4h" />
             </div>
 
             <Card className="border-gray-800 bg-gray-950">
@@ -192,7 +167,7 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
                                 Visualization of moderation activity over time
                             </CardDescription>
                         </div>
-                        <Tabs value={heatmapType} onValueChange={setHeatmapType} className="w-[240px]">
+                        <Tabs value={heatmapType} onValueChange={setHeatmapType}>
                             <TabsList className="bg-gray-900">
                                 <TabsTrigger value="reports" className="text-xs">
                                     Reports
@@ -286,17 +261,6 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
                     </CardHeader>
                     <CardContent>
                         <HorizontalBarChart data={bannedServersData} color="#dc2626" />
-                        <div className="mt-4 flex items-center justify-center">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="border-gray-800 text-gray-400 hover:text-white"
-                                onClick={handleViewAllBannedServers}
-                            >
-                                <Users className="mr-2 h-4 w-4" />
-                                View All Banned Servers
-                            </Button>
-                        </div>
                     </CardContent>
                 </Card>
             </div>
@@ -312,7 +276,7 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
                     <div className="grid gap-4 md:grid-cols-3">
                         <div className="space-y-2">
                             <h3 className="text-sm font-medium text-gray-400">Average Response Time</h3>
-                            <div className="flex items-end gap-2">
+                            <div className="flex items-end gap-3">
                                 <span className="text-2xl font-bold">1.4h</span>
                                 <span className="text-xs text-green-400">-15% from last month</span>
                             </div>
@@ -321,7 +285,7 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
 
                         <div className="space-y-2">
                             <h3 className="text-sm font-medium text-gray-400">Resolution Rate</h3>
-                            <div className="flex items-end gap-2">
+                            <div className="flex items-end gap-3">
                                 <span className="text-2xl font-bold">92%</span>
                                 <span className="text-xs text-green-400">+3% from last month</span>
                             </div>
@@ -330,7 +294,7 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
 
                         <div className="space-y-2">
                             <h3 className="text-sm font-medium text-gray-400">Moderator Activity</h3>
-                            <div className="flex items-end gap-2">
+                            <div className="flex items-end gap-3">
                                 <span className="text-2xl font-bold">4.2</span>
                                 <span className="text-xs text-gray-400">actions per day</span>
                             </div>

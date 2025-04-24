@@ -1,24 +1,13 @@
 "use client";
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Ban, Badge } from "lucide-react";
+import { Ban, PenOff, Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label"
 import { useState } from "react";
-import { PolicyList } from "../page";
+import { EBanTypes, PolicyList } from "../page";
+import AddBan from "./modals/add-ban";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface BansProps {
     policyLists: PolicyList[];
@@ -26,89 +15,22 @@ interface BansProps {
 
 export default function Bans({ policyLists }: BansProps) {
     const [selectedPolicyList, setSelectedPolicyList] = useState("global")
+    const [filter, setFilter] = useState("all")
     const selectedList = policyLists.find((list) => list.id === selectedPolicyList) || policyLists[0] || { entries: [] }
+    const entries = selectedList.entries.filter((entry) => {
+        if (filter === "all") return true;
+        if (filter === "users") return entry.type === EBanTypes.User;
+        if (filter === "servers") return entry.type === EBanTypes.Server;
+        if (filter === "rooms") return entry.type === EBanTypes.Room;
+        return false;
+    });
 
     return (
         <Card className="border-gray-800 bg-gray-950">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <CardTitle>Policy Lists</CardTitle>
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button size="sm" className="bg-purple-600 text-white hover:bg-purple-700">
-                                <Ban className="mr-2 h-4 w-4" />
-                                Add Ban
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-gray-950 border-gray-800">
-                            <DialogHeader>
-                                <DialogTitle>Add New Ban</DialogTitle>
-                                <DialogDescription className="text-gray-400">
-                                    Ban a user or server from your Matrix rooms
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="ban-type">Ban Type</Label>
-                                    <Select defaultValue="user">
-                                        <SelectTrigger className="bg-gray-900 border-gray-800">
-                                            <SelectValue placeholder="Select ban type" />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-gray-900 border-gray-800">
-                                            <SelectItem value="user">User</SelectItem>
-                                            <SelectItem value="server">Server</SelectItem>
-                                            <SelectItem value="room">Room</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="ban-target">Target</Label>
-                                    <Input
-                                        id="ban-target"
-                                        placeholder="@user:matrix.org"
-                                        className="bg-gray-900 border-gray-800"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="ban-reason">Reason</Label>
-                                    <Textarea
-                                        id="ban-reason"
-                                        placeholder="Reason for the ban"
-                                        className="bg-gray-900 border-gray-800"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Policy Lists</Label>
-                                    <div className="space-y-2 mt-1">
-                                        {policyLists
-                                            .filter((list) => !list.readOnly)
-                                            .map((list) => (
-                                                <div key={list.id} className="flex items-center space-x-2">
-                                                    <Checkbox id={`list-${list.id}`} />
-                                                    <Label htmlFor={`list-${list.id}`} className="font-normal">
-                                                        {list.name}
-                                                    </Label>
-                                                </div>
-                                            ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-xs text-gray-400">
-                                        Bans are applied to all protected rooms monitored by this bot.
-                                    </p>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button className="bg-red-600 text-white hover:bg-red-700">Add Ban</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <AddBan policyLists={policyLists} filled />
                 </div>
                 <CardDescription className="text-gray-400">Manage ban lists across your Matrix rooms</CardDescription>
             </CardHeader>
@@ -130,9 +52,9 @@ export default function Bans({ policyLists }: BansProps) {
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="font-medium">{list.name}</span>
                                             {list.readOnly ? (
-                                                <Badge className="bg-gray-800 text-gray-400">Read Only</Badge>
+                                                <PenOff className=" text-gray-400">Read Only</PenOff>
                                             ) : (
-                                                <Badge className="bg-green-900/50 text-green-300">Editable</Badge>
+                                                <Pen className="text-green-300">Editable</Pen>
                                             )}
                                         </div>
                                         <p className="text-xs text-gray-400">{list.description}</p>
@@ -155,25 +77,26 @@ export default function Bans({ policyLists }: BansProps) {
                             </h3>
                             <div className="flex items-center gap-2">
                                 <Input placeholder="Search entries..." className="h-8 w-[200px] bg-gray-900 border-gray-800" />
-                                {selectedList && !selectedList.readOnly && (
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button size="sm" className="bg-purple-600 text-white hover:bg-purple-700">
-                                                Add Entry
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="bg-gray-950 border-gray-800">
-                                            {/* Add entry dialog content */}
-                                        </DialogContent>
-                                    </Dialog>
-                                )}
+                                <div className="flex items-center gap-2">
+                                    <Select defaultValue="all" onValueChange={setFilter}>
+                                        <SelectTrigger className="h-8 w-[120px] bg-gray-900 border-gray-800">
+                                            <SelectValue placeholder="Filter" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-gray-900 border-gray-800">
+                                            <SelectItem value="all">All Bans</SelectItem>
+                                            <SelectItem value="users">Users</SelectItem>
+                                            <SelectItem value="servers">Servers</SelectItem>
+                                            <SelectItem value="rooms">Rooms</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
 
                         <ScrollArea className="h-[400px] rounded-md border border-gray-800">
                             <div className="p-4 space-y-3">
-                                {selectedList && selectedList.entries && selectedList.entries.length > 0 ? (
-                                    selectedList.entries.map((entry) => (
+                                {selectedList && entries && entries.length > 0 ? (
+                                    entries.map((entry) => (
                                         <div key={entry.id} className="p-3 rounded-md bg-gray-900 border border-gray-800">
                                             <div className="flex items-start justify-between">
                                                 <div>

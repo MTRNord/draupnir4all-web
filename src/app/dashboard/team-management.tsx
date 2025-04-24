@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from "react"
 import { UserPlus, Settings, Crown, Trash2, LogOut } from "lucide-react"
 
@@ -29,6 +27,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AddProtectedRoom from "./components/modals/add-protected-room";
+import ProtectedRomsList from "./components/protected-rooms-list";
 
 export interface Team {
     id: string;
@@ -324,19 +323,7 @@ export function TeamManagement({ selectedTeam: selectedTeamProp, onTeamChange }:
                         </div>
 
                         <ScrollArea className="h-[300px] rounded-md border border-gray-800">
-                            <div className="p-4 space-y-3">
-                                {selectedTeam.rooms.map((room, index) => (
-                                    <div key={index} className="flex items-center justify-between p-3 px-4 rounded-md bg-gray-900">
-                                        <div>
-                                            <p>{room}</p>
-                                        </div>
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-400">
-                                            <Trash2 className="h-4 w-4" />
-                                            <span className="sr-only">Remove</span>
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
+                            <ProtectedRomsList team={selectedTeam} />
                         </ScrollArea>
                     </TabsContent>
 

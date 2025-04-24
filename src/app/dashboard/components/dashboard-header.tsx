@@ -29,6 +29,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSession } from "@/contexts/session-context"
+import AddBan from "./modals/add-ban"
+import { PolicyList } from "../page"
 
 interface Notification {
     id: string
@@ -47,14 +49,15 @@ interface Team {
 }
 
 interface DashboardHeaderProps {
-    selectedTeam: Team
-    onTeamChange: (teamId: string) => void
-    activeTab: string
-    setActiveTab: (tab: string) => void
-    teams: Team[]
+    selectedTeam: Team;
+    onTeamChange: (teamId: string) => void;
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
+    teams: Team[];
+    policyLists: PolicyList[];
 }
 
-export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActiveTab, teams }: DashboardHeaderProps) {
+export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActiveTab, teams, policyLists }: DashboardHeaderProps) {
     const { logout } = useSession()
     const [notifications, setNotifications] = useState<Notification[]>([
         {
@@ -117,7 +120,7 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                     {/* Global Team Selector */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-950">
+                            <Button size="sm" variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-950">
                                 <Crown className="mr-2 h-4 w-4" />
                                 {selectedTeam.name}
                                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -217,10 +220,10 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                                             >
                                                 <div
                                                     className={`rounded-full p-1.5 mr-3 ${notification.type === "report"
-                                                            ? "bg-yellow-500/20"
-                                                            : notification.type === "ban"
-                                                                ? "bg-red-500/20"
-                                                                : "bg-blue-500/20"
+                                                        ? "bg-yellow-500/20"
+                                                        : notification.type === "ban"
+                                                            ? "bg-red-500/20"
+                                                            : "bg-blue-500/20"
                                                         }`}
                                                 >
                                                     {notification.type === "report" ? (
@@ -266,43 +269,7 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                     </Popover>
 
                     {/* Quick Action Buttons */}
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="hidden md:flex border-red-500 text-red-400 hover:bg-red-950 hover:text-red-300"
-                            >
-                                <Ban className="mr-2 h-4 w-4" />
-                                Ban User
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-gray-950 border-gray-800">
-                            <DialogHeader>
-                                <DialogTitle>Ban User</DialogTitle>
-                                <DialogDescription className="text-gray-400">Ban a user from your Matrix rooms</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="user-id">Matrix User ID</Label>
-                                    <Input id="user-id" placeholder="@user:matrix.org" className="bg-gray-900 border-gray-800" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="ban-reason">Reason</Label>
-                                    <Input id="ban-reason" placeholder="Reason for the ban" className="bg-gray-900 border-gray-800" />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button className="bg-red-600 text-white hover:bg-red-700">Ban User</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <AddBan header policyLists={policyLists} />
 
                     <Dialog>
                         <DialogTrigger asChild>
@@ -340,6 +307,7 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
 
                     <Button
                         variant="outline"
+                        size="sm"
                         className="hidden md:flex border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
                         onClick={handleLogout}
                     >

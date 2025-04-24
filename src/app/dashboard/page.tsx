@@ -10,6 +10,13 @@ import { ReportsTab } from "./components/reports-tab"
 import { DashboardHeader } from "./components/dashboard-header"
 import { OverviewTab } from "./components/overview-tab"
 
+export const EBanTypes = {
+  User: "user",
+  Server: "server",
+  Room: "room",
+} as const;
+type BanTypes = typeof EBanTypes[keyof typeof EBanTypes];
+
 export interface PolicyList {
   id: string;
   name: string;
@@ -21,6 +28,7 @@ export interface PolicyList {
     target: string,
     reason: string,
     timestamp: string,
+    type: BanTypes;
   }[];
 };
 
@@ -163,14 +171,22 @@ export default function DashboardPage() {
           target: "@spammer:badserver.org",
           reason: "Spam across multiple rooms",
           timestamp: "2025-04-20T10:30:00Z",
+          type: EBanTypes.User,
         },
         {
           id: "ban_2",
           target: "@troll:badserver.org",
           reason: "Harassment and inappropriate content",
           timestamp: "2025-04-19T15:45:00Z",
+          type: EBanTypes.User,
         },
-        { id: "ban_3", target: "@phisher:scam.org", reason: "Phishing attempts", timestamp: "2025-04-18T09:20:00Z" },
+        {
+          id: "ban_3",
+          target: "@phisher:scam.org",
+          reason: "Phishing attempts",
+          timestamp: "2025-04-18T09:20:00Z",
+          type: EBanTypes.User,
+        },
       ],
     },
     {
@@ -185,8 +201,23 @@ export default function DashboardPage() {
           target: "@disruptor:matrix.org",
           reason: "Disruptive behavior in #general",
           timestamp: "2025-04-21T08:15:00Z",
+          type: EBanTypes.User,
         },
-        { id: "ban_5", target: "@bot123:unknown.org", reason: "Automated spam", timestamp: "2025-04-20T14:30:00Z" },
+        {
+          id: "ban_5",
+          target: "@bot123:unknown.org",
+          reason: "Automated spam",
+          timestamp: "2025-04-20T14:30:00Z",
+          type: EBanTypes.User,
+        },
+        // Server ban
+        {
+          id: "ban_6",
+          target: "badserver.org",
+          reason: "Known spam server",
+          timestamp: "2025-04-19T11:00:00Z",
+          type: EBanTypes.Server,
+        },
       ],
     },
     {
@@ -201,6 +232,7 @@ export default function DashboardPage() {
           target: "@angryuser:matrix.org",
           reason: "Abusive language to support staff",
           timestamp: "2025-04-21T11:45:00Z",
+          type: EBanTypes.User,
         },
       ],
     },
@@ -216,6 +248,7 @@ export default function DashboardPage() {
           target: "@spambot:matrix.org",
           reason: "Code spam in development channels",
           timestamp: "2025-04-19T09:30:00Z",
+          type: EBanTypes.User,
         },
       ],
     },
@@ -237,6 +270,7 @@ export default function DashboardPage() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         teams={mockTeams}
+        policyLists={policyLists}
       />
       <main className="flex-1 container px-4 py-8 md:px-6 md:py-12">
         <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="space-y-8">
