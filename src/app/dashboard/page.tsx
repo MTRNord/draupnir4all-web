@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 import { mockTeams, Team, TeamManagement } from "./team-management"
 import Bans from "./components/bans-pane"
-import { AnalyticsDashboard } from "./analytics-dashboard"
+import { AnalyticsDashboard } from "./components/analytics-dashboard"
 import { ReportsTab } from "./components/reports-tab"
 import { DashboardHeader } from "./components/dashboard-header"
 import { OverviewTab } from "./components/overview-tab"

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { PieChart } from "@/components/analytics/pie-chart"
 import { Heatmap } from "@/components/analytics/heatmap"
-import { BarChart } from "@/components/analytics/bar-chart"
+import { BarChart, BarChartItem } from "@/components/analytics/bar-chart"
 import { HorizontalBarChart } from "@/components/analytics/horizontal-bar-chart"
 
 interface InfoCardWithTrendProps {
@@ -109,8 +109,8 @@ const monthlyActivityData = [
 ]
 
 // Transform monthly data for the BarChart component
-const monthlyBarChartData = monthlyActivityData.map((item) => ({
-    label: `${item.month} ${item.year}`,
+const monthlyBarChartData: BarChartItem[] = monthlyActivityData.map((item) => ({
+    label: `${item.month}`,
     values: [
         { value: item.reports, color: "#9333ea", label: "Reports" },
         { value: item.bans, color: "#dc2626", label: "Bans" },
@@ -248,9 +248,7 @@ export function AnalyticsDashboard({ selectedTeam }: AnalyticsDashboardProps) {
                         <CardDescription className="text-gray-400">Reports and bans over the past year</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[250px] w-full">
-                            <BarChart data={monthlyBarChartData} height={200} />
-                        </div>
+                        <BarChart data={monthlyBarChartData} height={200} />
                     </CardContent>
                 </Card>
 
