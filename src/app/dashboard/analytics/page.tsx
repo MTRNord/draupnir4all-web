@@ -13,7 +13,7 @@ import { BarChart, BarChartItem } from "@/components/analytics/bar-chart"
 import { HorizontalBarChart } from "@/components/analytics/horizontal-bar-chart"
 import { useSearchParams } from "next/navigation"
 import { mockTeams } from "../mockData"
-import TabNavigation from "../components/tab-navigation";
+import TabNavigation from "../../../components/dashboard/tab-navigation";
 
 interface InfoCardWithTrendProps {
     title: string;

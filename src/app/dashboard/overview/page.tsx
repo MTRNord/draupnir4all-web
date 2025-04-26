@@ -5,10 +5,10 @@ import { AlertTriangle, Ban, CheckCircle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import AddProtectedRoom from "../components/modals/add-protected-room"
-import ProtectedRomsList from "../components/protected-rooms-list"
+import AddProtectedRoom from "../../../components/modals/add-protected-room"
+import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
 import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
-import TabNavigation from "../components/tab-navigation";
+import TabNavigation from "../../../components/dashboard/tab-navigation";
 
 export default function OverviewPage() {
     const searchParams = useSearchParams()

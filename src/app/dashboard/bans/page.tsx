@@ -7,9 +7,9 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EBanTypes, mockPolicyLists, mockTeams, } from "../mockData";
-import AddBan from "../components/modals/add-ban";
+import AddBan from "../../../components/modals/add-ban";
 import { useSearchParams } from "next/navigation";
-import TabNavigation from "../components/tab-navigation";
+import TabNavigation from "../../../components/dashboard/tab-navigation";
 
 
 export default function Bans() {

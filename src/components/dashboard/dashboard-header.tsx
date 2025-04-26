@@ -19,10 +19,10 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSession } from "@/contexts/session-context"
-import AddBan from "./modals/add-ban"
-import KickUserModal from "./modals/kick-user"
-import CreateBotModal from "./modals/create-bot"
-import { mockPolicyLists } from "../mockData"
+import AddBan from "../modals/add-ban"
+import KickUserModal from "../modals/kick-user"
+import CreateBotModal from "../modals/create-bot"
+import { mockPolicyLists } from "../../app/dashboard/mockData"
 
 interface Notification {
     id: string

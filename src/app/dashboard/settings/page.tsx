@@ -30,10 +30,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSearchParams } from "next/navigation"
 import { mockTeams } from "../mockData"
-import AddProtectedRoom from "../components/modals/add-protected-room"
-import ProtectedRomsList from "../components/protected-rooms-list"
-import TabNavigation from "../components/tab-navigation"
-import CreateBotModal from "../components/modals/create-bot";
+import AddProtectedRoom from "../../../components/modals/add-protected-room"
+import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
+import TabNavigation from "../../../components/dashboard/tab-navigation"
+import CreateBotModal from "../../../components/modals/create-bot";
 
 
 export default function TeamManagement() {

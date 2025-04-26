@@ -2,7 +2,7 @@ import type React from "react"
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 import { getSessionUser } from "@/lib/auth"
-import { DashboardHeader } from "./components/dashboard-header"
+import { DashboardHeader } from "../../components/dashboard/dashboard-header"
 
 // Mock data for teams/bots
 const mockTeams = [

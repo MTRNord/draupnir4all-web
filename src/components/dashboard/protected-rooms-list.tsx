@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { Team } from "../mockData";
+import { Team } from "../../app/dashboard/mockData";
 
 interface ProtectedRomsListProps {
     team: Team;

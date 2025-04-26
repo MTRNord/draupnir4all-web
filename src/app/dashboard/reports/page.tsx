@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { mockReports, mockTeams } from "../mockData";
 import { useSearchParams } from "next/navigation"
-import TabNavigation from "../components/tab-navigation"
+import TabNavigation from "../../../components/dashboard/tab-navigation"
 
 export default function ReportsPage() {
     const searchParams = useSearchParams()

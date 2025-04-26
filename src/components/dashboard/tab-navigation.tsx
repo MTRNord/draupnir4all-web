@@ -1,6 +1,6 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
-import { Team } from "../mockData";
+import { Team } from "../../app/dashboard/mockData";
 
 interface TabNavigationProps {
     selectedTeam: Team;
