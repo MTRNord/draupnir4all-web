@@ -11,7 +11,7 @@ export default function TabNavigation({ selectedTeam, currentTab }: TabNavigatio
     return (
         <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold tracking-tight">{selectedTeam.name} Dashboard</h1>
-            <Tabs defaultValue={currentTab} className="hidden md:block">
+            <Tabs activationMode="manual" defaultValue={currentTab} className="hidden md:block">
                 <TabsList className="bg-gray-900">
                     <TabsTrigger value="overview" asChild>
                         <Link href={`/dashboard/overview?team=${selectedTeam.id}`}>Overview</Link>

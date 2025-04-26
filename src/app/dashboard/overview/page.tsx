@@ -13,6 +13,9 @@ interface OverviewPageProps {
 }
 
 async function fetchData(teamIdParam?: string): Promise<OverviewPageProps> {
+    "use cache";
+    // TODO: Check if we really can cache the real data here
+
     const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
     const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);
     const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id);

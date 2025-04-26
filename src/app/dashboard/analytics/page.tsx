@@ -93,22 +93,18 @@ export default function AnalyticsDashboard() {
         <>
             <TabNavigation selectedTeam={selectedTeam} currentTab="analytics" />
             <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-2xl font-bold">{selectedTeam.name} Analytics</h2>
-                    <div className="flex items-center gap-2">
-                        <Select value={timeRange} onValueChange={setTimeRange}>
-                            <SelectTrigger className="w-[120px] h-8 bg-gray-900 border-gray-800">
-                                <SelectValue placeholder="Time Range" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-gray-900 border-gray-800">
-                                <SelectItem value="month">Past Month</SelectItem>
-                                <SelectItem value="quarter">Past Quarter</SelectItem>
-                                <SelectItem value="year">Past Year</SelectItem>
-                                <SelectItem value="all">All Time</SelectItem>
-                            </SelectContent>
-                        </Select>
-
-                    </div>
+                <div className="flex items-center  justify-end">
+                    <Select value={timeRange} onValueChange={setTimeRange}>
+                        <SelectTrigger className="w-[120px] h-8 bg-gray-900 border-gray-800">
+                            <SelectValue placeholder="Time Range" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-gray-900 border-gray-800">
+                            <SelectItem value="month">Past Month</SelectItem>
+                            <SelectItem value="quarter">Past Quarter</SelectItem>
+                            <SelectItem value="year">Past Year</SelectItem>
+                            <SelectItem value="all">All Time</SelectItem>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
