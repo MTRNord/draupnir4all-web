@@ -1,22 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Shield, Bell, Menu, Ban, UserX, LogOut, Crown, ChevronDown, Plus, X } from "lucide-react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { Shield, Bell, Menu, Ban, LogOut, Crown, ChevronDown, Plus, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import {
     DropdownMenu,
@@ -30,7 +20,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useSession } from "@/contexts/session-context"
 import AddBan from "./modals/add-ban"
-import { PolicyList } from "../page"
+import KickUserModal from "./modals/kick-user"
+import CreateBotModal from "./modals/create-bot"
+import { mockPolicyLists } from "../mockData"
 
 interface Notification {
     id: string
@@ -49,16 +41,40 @@ interface Team {
 }
 
 interface DashboardHeaderProps {
-    selectedTeam: Team;
-    onTeamChange: (teamId: string) => void;
-    activeTab: string;
-    setActiveTab: (tab: string) => void;
-    teams: Team[];
-    policyLists: PolicyList[];
+    teams: Team[]
 }
 
-export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActiveTab, teams, policyLists }: DashboardHeaderProps) {
+export function DashboardHeader({ teams }: DashboardHeaderProps) {
     const { logout } = useSession()
+    const pathname = usePathname()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+
+    // Get team ID from query params or use default
+    const teamIdParam = searchParams.get("team")
+    const [selectedTeam, setSelectedTeam] = useState<Team>(teams.find((t) => t.id === teamIdParam) || teams[0])
+
+    const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id)
+
+    // Determine active tab from the URL
+    const getActiveTabFromPath = (path: string) => {
+        if (path.includes("/dashboard/reports")) return "reports"
+        if (path.includes("/dashboard/bans")) return "bans"
+        if (path.includes("/dashboard/analytics")) return "analytics"
+        if (path.includes("/dashboard/settings")) return "settings"
+        return "overview"
+    }
+
+    const activeTab = getActiveTabFromPath(pathname)
+
+    // Update selected team when URL param changes
+    useEffect(() => {
+        const team = teams.find((t) => t.id === teamIdParam)
+        if (team) {
+            setSelectedTeam(team)
+        }
+    }, [teamIdParam, teams])
+
     const [notifications, setNotifications] = useState<Notification[]>([
         {
             id: "notif1",
@@ -108,6 +124,27 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
         await logout()
     }
 
+    const handleTeamChange = (teamId: string) => {
+        const team = teams.find((t) => t.id === teamId)
+        if (team) {
+            setSelectedTeam(team)
+
+            // Update URL with team parameter
+            const params = new URLSearchParams(searchParams)
+            params.set("team", teamId)
+            router.push(`${pathname}?${params.toString()}`)
+        }
+    }
+
+    const navigateToTab = (tab: string) => {
+        const baseUrl = tab === "overview" ? "/dashboard" : `/dashboard/${tab}`
+
+        // Preserve team parameter
+        const params = new URLSearchParams()
+        params.set("team", selectedTeam.id)
+        router.push(`${baseUrl}?${params.toString()}`)
+    }
+
     return (
         <header className="sticky top-0 z-10 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -120,7 +157,7 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                     {/* Global Team Selector */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-950">
+                            <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-950">
                                 <Crown className="mr-2 h-4 w-4" />
                                 {selectedTeam.name}
                                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -133,51 +170,13 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                                 <DropdownMenuItem
                                     key={team.id}
                                     className={selectedTeam.id === team.id ? "bg-gray-800" : ""}
-                                    onClick={() => onTeamChange(team.id)}
+                                    onClick={() => handleTeamChange(team.id)}
                                 >
                                     {team.name}
                                 </DropdownMenuItem>
                             ))}
                             <DropdownMenuSeparator className="bg-gray-800" />
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <DropdownMenuItem>
-                                        <Plus className="mr-2 h-4 w-4" />
-                                        Create New Bot
-                                    </DropdownMenuItem>
-                                </DialogTrigger>
-                                <DialogContent className="bg-gray-950 border-gray-800">
-                                    <DialogHeader>
-                                        <DialogTitle>Create New Bot</DialogTitle>
-                                        <DialogDescription className="text-gray-400">
-                                            Set up a new Draupnir bot for a different community
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4 py-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="bot-name">Bot Name</Label>
-                                            <Input id="bot-name" placeholder="My Community Bot" className="bg-gray-900 border-gray-800" />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="bot-description">Description</Label>
-                                            <Input
-                                                id="bot-description"
-                                                placeholder="Moderation for my community"
-                                                className="bg-gray-900 border-gray-800"
-                                            />
-                                        </div>
-                                    </div>
-                                    <DialogFooter>
-                                        <Button
-                                            variant="outline"
-                                            className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button className="bg-purple-600 text-white hover:bg-purple-700">Create Bot</Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                            <CreateBotModal />
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -271,39 +270,7 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                     {/* Quick Action Buttons */}
                     <AddBan header policyLists={policyLists} />
 
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="hidden md:flex border-orange-500 text-orange-400 hover:bg-orange-950 hover:text-orange-300"
-                            >
-                                <UserX className="mr-2 h-4 w-4" />
-                                Kick User
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-gray-950 border-gray-800">
-                            <DialogHeader>
-                                <DialogTitle>Kick User</DialogTitle>
-                                <DialogDescription className="text-gray-400">Kick a user from a Matrix room</DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="kick-user-id">Matrix User ID</Label>
-                                    <Input id="kick-user-id" placeholder="@user:matrix.org" className="bg-gray-900 border-gray-800" />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button
-                                    variant="outline"
-                                    className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button className="bg-orange-600 text-white hover:bg-orange-700">Kick User</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <KickUserModal />
 
                     <Button
                         variant="outline"
@@ -347,7 +314,7 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                                                 <DropdownMenuItem
                                                     key={team.id}
                                                     className={selectedTeam.id === team.id ? "bg-gray-800" : ""}
-                                                    onClick={() => onTeamChange(team.id)}
+                                                    onClick={() => handleTeamChange(team.id)}
                                                 >
                                                     {team.name}
                                                 </DropdownMenuItem>
@@ -359,35 +326,35 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                                     <Button
                                         variant={activeTab === "overview" ? "secondary" : "ghost"}
                                         className="justify-start"
-                                        onClick={() => setActiveTab("overview")}
+                                        onClick={() => navigateToTab("overview")}
                                     >
                                         Overview
                                     </Button>
                                     <Button
                                         variant={activeTab === "reports" ? "secondary" : "ghost"}
                                         className="justify-start"
-                                        onClick={() => setActiveTab("reports")}
+                                        onClick={() => navigateToTab("reports")}
                                     >
                                         Reports
                                     </Button>
                                     <Button
                                         variant={activeTab === "bans" ? "secondary" : "ghost"}
                                         className="justify-start"
-                                        onClick={() => setActiveTab("bans")}
+                                        onClick={() => navigateToTab("bans")}
                                     >
                                         Bans
                                     </Button>
                                     <Button
                                         variant={activeTab === "analytics" ? "secondary" : "ghost"}
                                         className="justify-start"
-                                        onClick={() => setActiveTab("analytics")}
+                                        onClick={() => navigateToTab("analytics")}
                                     >
                                         Analytics
                                     </Button>
                                     <Button
                                         variant={activeTab === "settings" ? "secondary" : "ghost"}
                                         className="justify-start"
-                                        onClick={() => setActiveTab("settings")}
+                                        onClick={() => navigateToTab("settings")}
                                     >
                                         Settings
                                     </Button>
@@ -395,41 +362,14 @@ export function DashboardHeader({ selectedTeam, onTeamChange, activeTab, setActi
                                     <Separator className="my-2" />
 
                                     {/* Mobile Quick Actions */}
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="w-full justify-start border-red-500 text-red-400 hover:bg-red-950 hover:text-red-300"
-                                            >
-                                                <Ban className="mr-2 h-4 w-4" />
-                                                Ban User
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="bg-gray-950 border-gray-800">
-                                            {/* Same content as desktop dialog */}
-                                        </DialogContent>
-                                    </Dialog>
+                                    <AddBan header policyLists={policyLists} />
 
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="w-full justify-start border-orange-500 text-orange-400 hover:bg-orange-950 hover:text-orange-300"
-                                            >
-                                                <UserX className="mr-2 h-4 w-4" />
-                                                Kick User
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="bg-gray-950 border-gray-800">
-                                            {/* Same content as desktop dialog */}
-                                        </DialogContent>
-                                    </Dialog>
+                                    <KickUserModal />
                                 </nav>
                                 <div className="mt-auto border-t border-gray-800 p-4">
                                     <Button
                                         variant="outline"
+                                        size="sm"
                                         className="w-full border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
                                         onClick={handleLogout}
                                     >
