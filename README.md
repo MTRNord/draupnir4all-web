@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Draupnir4All Admin
 
-## Getting Started
+Draupnir4All Admin is a private project designed to manage and administer Draupnirs which are provisioned by the Appservice mode.
 
-First, run the development server:
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+- [Node.js](https://nodejs.org/) (version 18.18.0 or higher is recommended)
+- [pnpm](https://pnpm.io/) (a fast, disk space-efficient package manager)
+
+## Installation
+
+To get started, clone the repository and install the dependencies using `pnpm`:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/MTRNord/draupnir4all-web.git
+cd draupnir4all-web
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The project includes several scripts defined in the `package.json` file. You can run these scripts using `pnpm`:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Development**: Start the development server with Turbopack.
 
-## Learn More
+  ```bash
+  pnpm dev
+  ```
 
-To learn more about Next.js, take a look at the following resources:
+- **Build**: Build the project for production.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+  ```bash
+  pnpm build
+  ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Start**: Start the production server.
 
-## Deploy on Vercel
+  ```bash
+  pnpm start
+  ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Lint**: Run linting checks using Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  ```bash
+  pnpm lint
+  ```
+
+## Usage
+
+1. Run the development server:
+
+   ```bash
+   pnpm dev
+   ```
+
+   This will start the application in development mode. You can access it at `http://localhost:3000`.
+
+2. To build the project for production:
+
+   ```bash
+   pnpm build
+   ```
+
+3. Start the production server:
+
+   ```bash
+   pnpm start
+   ```
+
+4. Use the linting script to ensure code quality:
+
+   ```bash
+   pnpm lint
+   ```
+
+## Package Manager
+
+This project uses `pnpm` as the package manager. It is faster and more efficient than traditional package managers like npm or yarn. If you don't have `pnpm` installed, you can install it globally using npm:
+
+```bash
+npm install -g pnpm
+```
+
+## License
+
+This project is licensed under the Apache-2.0 License. See the [LICENSE](LICENSE) file for more details.
