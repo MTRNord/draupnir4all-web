@@ -22,7 +22,7 @@ import { useSession } from "@/contexts/session-context"
 import AddBan from "../modals/add-ban"
 import KickUserModal from "../modals/kick-user"
 import CreateBotModal from "../modals/create-bot"
-import { mockPolicyLists } from "../../app/dashboard/mockData"
+import { mockPolicyLists, Team } from "../../app/dashboard/mockData"
 
 interface Notification {
     id: string
@@ -32,12 +32,6 @@ interface Notification {
     timestamp: string
     read: boolean
     teamId?: string
-}
-
-interface Team {
-    id: string
-    name: string
-    description: string
 }
 
 interface DashboardHeaderProps {

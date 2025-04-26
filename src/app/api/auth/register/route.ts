@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createSession, setSessionCookie } from "@/lib/auth"
+import { createSession } from "@/lib/auth"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,13 +19,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create a session token
-    const token = await createSession(user)
+    await createSession(user)
 
     // Create a response
     const response = NextResponse.json({ success: true, user })
-
-    // Set the session cookie
-    await setSessionCookie(token, response)
 
     return response
   } catch (error) {

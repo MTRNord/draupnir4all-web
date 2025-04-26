@@ -31,6 +31,8 @@ export function MatrixLoginForm({ matrixId, onSuccess, onCancel }: MatrixLoginFo
 
   // Extract username and server from Matrix ID
   const serverName = matrixId.includes(":") ? matrixId.split(":").pop() || "matrix.org" : "matrix.org"
+  // TODO: Fix me
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const username = matrixId.startsWith("@")
     ? matrixId.includes(":")
       ? matrixId.split(":")[0].substring(1)
@@ -111,6 +113,8 @@ export function MatrixLoginForm({ matrixId, onSuccess, onCancel }: MatrixLoginFo
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Simulate access token
+      // TODO: Fix me
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const mockAccessToken = "syt_" + Math.random().toString(36).substring(2, 15)
 
       // Step 2: Request an OpenID token

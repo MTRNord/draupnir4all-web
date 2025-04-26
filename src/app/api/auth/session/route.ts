@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { getSessionUser } from "@/lib/auth"
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
-    const user = await getSessionUser(request)
+    const user = await getSessionUser()
 
     if (!user) {
       return NextResponse.json({ authenticated: false }, { status: 401 })

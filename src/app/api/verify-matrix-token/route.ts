@@ -28,6 +28,8 @@ export async function POST(request: Request) {
       if (response.ok) {
         const data = (await response.json()) as WellKnownResponse
         if (data["m.homeserver"]?.base_url) {
+          // TODO: Fix me
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           homeserverUrl = data["m.homeserver"].base_url
         }
       }

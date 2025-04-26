@@ -1,35 +1,34 @@
-'use client';
-
 import { AlertTriangle, Ban, CheckCircle } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
-import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
+import { mockPolicyLists, mockReports, mockTeams, PolicyList, Report, Team } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
 
-export default function OverviewPage() {
-    const searchParams = useSearchParams()
-    const teamIdParam = searchParams.get("team")
-    const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
+interface OverviewPageProps {
+    selectedTeam: Team;
+    reports: Report[];
+    policyLists: PolicyList[];
+}
 
+async function fetchData(teamIdParam?: string): Promise<OverviewPageProps> {
+    const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
+    const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);
+    const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id);
 
-    // Update selected team when URL param changes
-    useEffect(() => {
-        const team = mockTeams.find((t) => t.id === teamIdParam)
-        if (team) {
-            setSelectedTeam(team)
-        }
-    }, [teamIdParam])
+    return {
+        selectedTeam,
+        reports,
+        policyLists,
+    };
+}
 
-    // Filter data based on selected team
-    const reports = mockReports.filter((report) => report.teamId === selectedTeam.id)
-    const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id)
+export default async function OverviewPage({ searchParams }: { searchParams: Promise<{ team?: string }> }) {
+    const { team } = await searchParams;
+    const { selectedTeam, reports, policyLists } = await fetchData(team);
 
     return (
-
         <>
             <TabNavigation selectedTeam={selectedTeam} currentTab="overview" />
             <div className="space-y-8">

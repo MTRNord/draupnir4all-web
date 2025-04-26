@@ -1,11 +1,8 @@
 import { cookies } from "next/headers"
-import type { NextRequest, NextResponse } from "next/server"
 import { jwtVerify, SignJWT } from "jose"
 
-// Secret key for JWT signing - in production, use a proper secret management system
-const JWT_SECRET = new TextEncoder().encode(
-    process.env.JWT_SECRET || "this_is_a_secret_key_that_should_be_in_env_variables",
-)
+const secretKey = process.env.SESSION_SECRET
+const encodedKey = new TextEncoder().encode(secretKey)
 
 export type User = {
     id: string
@@ -15,35 +12,68 @@ export type User = {
     isAdmin: boolean
 }
 
-export async function createSession(user: User): Promise<string> {
-    // Create a JWT token with user data
-    const token = await new SignJWT({ user })
-        .setProtectedHeader({ alg: "HS256" })
+export async function encrypt(user: User) {
+    return new SignJWT({ user })
+        .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
-        .setExpirationTime("7d") // Token expires in 7 days
-        .sign(JWT_SECRET)
-
-    return token
+        .setExpirationTime('7d')
+        .sign(encodedKey)
 }
 
-export async function setSessionCookie(token: string, response: NextResponse): Promise<void> {
-    // Set the session cookie with secure attributes
-    response.cookies.set({
-        name: "matrix_session",
-        value: token,
+export async function decrypt(session: string | undefined = '') {
+    try {
+        const { payload } = await jwtVerify(session, encodedKey, {
+            algorithms: ['HS256'],
+        })
+        return payload
+    } catch (error: unknown) {
+        console.log('Failed to verify session', error)
+    }
+}
+
+export async function createSession(user: User) {
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    const session = await encrypt(user)
+    const cookieStore = await cookies()
+
+    cookieStore.set('session', session, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: "/",
+        secure: true,
+        expires: expiresAt,
+        sameSite: 'lax',
+        path: '/',
     })
 }
 
-export async function getSessionUser(request?: NextRequest): Promise<User | null> {
+export async function updateSession() {
+    const session = (await cookies()).get('session')?.value
+    const payload = await decrypt(session)
+
+    if (!session || !payload) {
+        return null
+    }
+
+    const expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+
+    const cookieStore = await cookies()
+    cookieStore.set('session', session, {
+        httpOnly: true,
+        secure: true,
+        expires: expires,
+        sameSite: 'lax',
+        path: '/',
+    })
+}
+
+export async function deleteSession() {
+    const cookieStore = await cookies()
+    cookieStore.delete('session')
+}
+
+export async function getSessionUser(): Promise<User | null> {
     try {
         // Get the session cookie
-        const cookieStore = request ? request.cookies : await cookies()
-        const sessionCookie = cookieStore.get("matrix_session")
+        const sessionCookie = (await cookies()).get('session')
 
         if (!sessionCookie?.value) {
             return null
@@ -51,7 +81,7 @@ export async function getSessionUser(request?: NextRequest): Promise<User | null
 
         // Verify the JWT token
         try {
-            const { payload } = await jwtVerify(sessionCookie.value, JWT_SECRET)
+            const { payload } = await jwtVerify(sessionCookie.value, encodedKey)
 
             if (!payload.user) {
                 return null
@@ -66,17 +96,4 @@ export async function getSessionUser(request?: NextRequest): Promise<User | null
         console.error("Failed to verify session:", error)
         return null
     }
-}
-
-export async function clearSession(response: NextResponse): Promise<void> {
-    // Clear the session cookie
-    response.cookies.set({
-        name: "matrix_session",
-        value: "",
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 0,
-        path: "/",
-    })
 }

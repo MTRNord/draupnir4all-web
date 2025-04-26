@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react"
-import { UserPlus, Settings, Crown, Trash2, LogOut } from "lucide-react"
+import { useState } from "react"
+import { UserPlus, Settings, Trash2, LogOut } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,8 +22,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -33,34 +31,15 @@ import { mockTeams } from "../mockData"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
 import TabNavigation from "../../../components/dashboard/tab-navigation"
-import CreateBotModal from "../../../components/modals/create-bot";
 
 
 export default function TeamManagement() {
     const searchParams = useSearchParams()
     const teamIdParam = searchParams.get("team")
-    const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
+    const [selectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
+
+    // TODO: Make this actual pages so we can use more ssr
     const [activeTab, setActiveTab] = useState("members")
-
-    // Update selected team when URL param changes
-    useEffect(() => {
-        const team = mockTeams.find((t) => t.id === teamIdParam)
-        if (team) {
-            setSelectedTeam(team)
-        }
-    }, [teamIdParam])
-
-    const handleTeamChange = (teamId: string) => {
-        const team = mockTeams.find((t) => t.id === teamId)
-        if (team) {
-            setSelectedTeam(team)
-
-            // Update URL with team parameter
-            const url = new URL(window.location.href)
-            url.searchParams.set("team", teamId)
-            window.history.pushState({}, "", url.toString())
-        }
-    }
 
     return (
         <>
@@ -72,29 +51,6 @@ export default function TeamManagement() {
                             <CardTitle>Team Management</CardTitle>
                             <CardDescription className="text-gray-400">Manage your bots and team members</CardDescription>
                         </div>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-950">
-                                    <Crown className="mr-2 h-4 w-4" />
-                                    {selectedTeam.name}
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 bg-gray-900 border-gray-800">
-                                <DropdownMenuLabel>Your Bots</DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-gray-800" />
-                                {mockTeams.map((team) => (
-                                    <DropdownMenuItem
-                                        key={team.id}
-                                        className={selectedTeam.id === team.id ? "bg-gray-800" : ""}
-                                        onClick={() => handleTeamChange(team.id)}
-                                    >
-                                        {team.name}
-                                    </DropdownMenuItem>
-                                ))}
-                                <DropdownMenuSeparator className="bg-gray-800" />
-                                <CreateBotModal />
-                            </DropdownMenuContent>
-                        </DropdownMenu>
                     </div>
                 </CardHeader>
                 <CardContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { TrendingUp, Users } from "lucide-react"
+import { Users } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -15,35 +15,7 @@ import { BannedServerData, generateHeatmapData, getBannedServersConfig, getMonth
 import { PlotlyChart } from "@/components/analytics/plotly-chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-interface InfoCardWithTrendProps {
-    title: string;
-    changePercent: number;
-    value: string | number;
-    trendColorOverride?: string;
-}
-
-function InfoCardWithTrend({ title, changePercent, value, trendColorOverride }: InfoCardWithTrendProps) {
-    const trendColor = changePercent > 0 ? "text-green-400" : "text-red-400"
-    const trendIcon = changePercent > 0 ? <TrendingUp className="h-3.5 w-3.5 mr-1" /> : <TrendingUp className="h-3.5 w-3.5 mr-1 rotate-180" />
-    const trendText = changePercent > 0 ? `+${changePercent}% from previous period` : `${changePercent}% from previous period`
-    const trendClass = trendColorOverride || trendColor
-
-    return (
-        <Card className="border-gray-800 bg-gray-950">
-            <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">{title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="text-2xl font-bold">{value}</div>
-                <div className={`flex items-center text-xs ${trendClass}`}>
-                    {trendIcon}
-                    <span>{trendText}</span>
-                </div>
-            </CardContent>
-        </Card>
-    )
-}
+import InfoCardWithTrend from "@/components/analytics/info-card-with-trend";
 
 // Mock data for charts
 const roomActivityData: RoomActivityData[] = [

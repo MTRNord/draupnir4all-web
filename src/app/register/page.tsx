@@ -22,6 +22,8 @@ export default function RegisterPage() {
     setStep("login")
   }
 
+  // TODO: Fix me
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleLoginSuccess = async (token: string) => {
     try {
       // Use the register function from session context

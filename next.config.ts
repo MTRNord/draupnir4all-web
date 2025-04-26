@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: 'incremental',
     useCache: true,
-  }
+  },
+  output: 'standalone'
 };
 
 const withBundleAnalyzer = analyzer({

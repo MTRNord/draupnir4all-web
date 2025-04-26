@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
     const isPublicPath = path === "/" || path === "/login" || path === "/register"
 
     // Check if the user is authenticated
-    const user = await getSessionUser(request)
+    const user = await getSessionUser()
     const isAuthenticated = !!user
 
     // If the path is dashboard and the user is not authenticated, redirect to login

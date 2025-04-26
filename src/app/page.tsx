@@ -4,6 +4,8 @@ import { Shield, Users, BarChart, Settings, AlertTriangle, CheckCircle, Ban, Eye
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
+export const experimental_ppr = true
+
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
