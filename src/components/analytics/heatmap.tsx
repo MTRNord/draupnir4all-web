@@ -77,7 +77,7 @@ export function Heatmap({ data, title, colorIntensityLabel = "Activity", classNa
                 {week.map((day, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
-                    className={`h-[18px] w-[18px] rounded-sm ${getColor(day.count)}`}
+                    className={`h-[18px] w-[18px] rounded-sm ${getColor(day.count)} transition-opacity hover:opacity-80 cursor-pointer`}
                     title={`${day.date}: ${day.count} ${colorIntensityLabel}`}
                   ></div>
                 ))}

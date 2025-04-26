@@ -1,19 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react"
-import { TrendingUp } from "lucide-react"
+import { TrendingUp, Users } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
-import { PieChart } from "@/components/analytics/pie-chart"
 import { Heatmap } from "@/components/analytics/heatmap"
-import { BarChart, BarChartItem } from "@/components/analytics/bar-chart"
-import { HorizontalBarChart } from "@/components/analytics/horizontal-bar-chart"
 import { useSearchParams } from "next/navigation"
 import { mockTeams } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
+import { BannedServerData, generateHeatmapData, getBannedServersConfig, getMonthlyActivityConfig, getReportTypesConfig, getRoomActivityConfig, MonthlyActivityData, ReportTypeData, RoomActivityData } from "@/components/analytics/chart-configs";
+import { PlotlyChart } from "@/components/analytics/plotly-chart";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface InfoCardWithTrendProps {
     title: string;
@@ -44,36 +45,8 @@ function InfoCardWithTrend({ title, changePercent, value, trendColorOverride }: 
     )
 }
 
-// Mock data for heatmaps
-const generateHeatmapData = (intensity = 1, seed = 42) => {
-    const today = new Date()
-    const data = []
-
-    // Generate data for the past year (52 weeks)
-    for (let i = 0; i < 364; i++) {
-        const date = new Date(today)
-        date.setDate(today.getDate() - i)
-
-        // Use a simple algorithm to generate semi-random but consistent data
-        const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000)
-        const value = Math.floor(Math.sin(dayOfYear * 0.1 + seed) * Math.cos(date.getMonth() * 0.3 + seed) * 10 * intensity)
-
-        data.push({
-            date: date.toISOString().split("T")[0],
-            count: Math.max(0, value),
-        })
-    }
-
-    // Sort by date (oldest first)
-    return data.reverse()
-}
-
-// Generate mock data
-const reportsHeatmapData = generateHeatmapData(1.5, 42)
-const bansHeatmapData = generateHeatmapData(1, 123)
-
 // Mock data for charts
-const roomActivityData = [
+const roomActivityData: RoomActivityData[] = [
     { name: "#general:matrix.org", reports: 42, bans: 15 },
     { name: "#support:matrix.org", reports: 28, bans: 9 },
     { name: "#community:matrix.org", reports: 17, bans: 5 },
@@ -81,7 +54,7 @@ const roomActivityData = [
     { name: "#random:matrix.org", reports: 5, bans: 1 },
 ]
 
-const reportTypesData = [
+const reportTypesData: ReportTypeData[] = [
     { id: 1, label: "Spam", value: 45, color: "#f97316" },
     { id: 2, label: "Harassment", value: 32, color: "#ef4444" },
     { id: 3, label: "Inappropriate Content", value: 28, color: "#ec4899" },
@@ -89,7 +62,7 @@ const reportTypesData = [
     { id: 5, label: "Other", value: 10, color: "#6366f1" },
 ]
 
-const bannedServersData = [
+const bannedServersData: BannedServerData[] = [
     { label: "spam.org", value: 28, secondaryLabel: "28 users" },
     { label: "scam.net", value: 17, secondaryLabel: "17 users" },
     { label: "badactor.io", value: 12, secondaryLabel: "12 users" },
@@ -98,7 +71,7 @@ const bannedServersData = [
 ]
 
 // Enhanced monthly activity data with more realistic patterns
-const monthlyActivityData = [
+const monthlyActivityData: MonthlyActivityData[] = [
     { month: "Jan", reports: 24, bans: 8, year: 2025 },
     { month: "Feb", reports: 32, bans: 12, year: 2025 },
     { month: "Mar", reports: 45, bans: 18, year: 2025 },
@@ -113,14 +86,6 @@ const monthlyActivityData = [
     { month: "Dec", reports: 28, bans: 10, year: 2025 },
 ]
 
-// Transform monthly data for the BarChart component
-const monthlyBarChartData: BarChartItem[] = monthlyActivityData.map((item) => ({
-    label: `${item.month}`,
-    values: [
-        { value: item.reports, color: "#9333ea", label: "Reports" },
-        { value: item.bans, color: "#dc2626", label: "Bans" },
-    ],
-}))
 
 export default function AnalyticsDashboard() {
     const searchParams = useSearchParams()
@@ -138,6 +103,16 @@ export default function AnalyticsDashboard() {
 
     const [timeRange, setTimeRange] = useState("year")
     const [heatmapType, setHeatmapType] = useState("reports")
+
+    // Generate mock data
+    const reportsHeatmapData = generateHeatmapData(1.5, 42)
+    const bansHeatmapData = generateHeatmapData(1, 123)
+
+    // Get chart configurations
+    const roomActivityConfig = getRoomActivityConfig(roomActivityData)
+    const reportTypesConfig = getReportTypesConfig(reportTypesData)
+    const monthlyActivityConfig = getMonthlyActivityConfig(monthlyActivityData)
+    const bannedServersConfig = getBannedServersConfig(bannedServersData)
 
 
     const reportChangePercent = 12
@@ -208,38 +183,7 @@ export default function AnalyticsDashboard() {
                             <CardDescription className="text-gray-400">Reports and bans by room</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                {roomActivityData.map((room, index) => (
-                                    <div key={index} className="space-y-2">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-sm font-medium">{room.name}</span>
-                                            <span className="text-xs text-gray-400">{room.reports + room.bans} actions</span>
-                                        </div>
-                                        <div className="flex h-2 overflow-hidden rounded-full bg-gray-900">
-                                            <div
-                                                className="bg-purple-600"
-                                                style={{ width: `${(room.reports / (room.reports + room.bans)) * 100}%` }}
-                                                title={`${room.reports} reports`}
-                                            ></div>
-                                            <div
-                                                className="bg-red-600"
-                                                style={{ width: `${(room.bans / (room.reports + room.bans)) * 100}%` }}
-                                                title={`${room.bans} bans`}
-                                            ></div>
-                                        </div>
-                                        <div className="flex items-center justify-between text-xs text-gray-400">
-                                            <div className="flex items-center gap-1">
-                                                <div className="h-2 w-2 rounded-full bg-purple-600"></div>
-                                                <span>{room.reports} reports</span>
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <div className="h-2 w-2 rounded-full bg-red-600"></div>
-                                                <span>{room.bans} bans</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                            <PlotlyChart data={roomActivityConfig.data} layout={roomActivityConfig.layout} />
                         </CardContent>
                     </Card>
 
@@ -249,7 +193,7 @@ export default function AnalyticsDashboard() {
                             <CardDescription className="text-gray-400">Distribution of report reasons</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <PieChart data={reportTypesData} centerLabel="Report Types" />
+                            <PlotlyChart data={reportTypesConfig.data} layout={reportTypesConfig.layout} />
                         </CardContent>
                     </Card>
                 </div>
@@ -261,7 +205,7 @@ export default function AnalyticsDashboard() {
                             <CardDescription className="text-gray-400">Reports and bans over the past year</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <BarChart data={monthlyBarChartData} height={200} />
+                            <PlotlyChart data={monthlyActivityConfig.data} layout={monthlyActivityConfig.layout} />
                         </CardContent>
                     </Card>
 
@@ -271,7 +215,15 @@ export default function AnalyticsDashboard() {
                             <CardDescription className="text-gray-400">Servers with the most banned users</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <HorizontalBarChart data={bannedServersData} color="#dc2626" />
+                            <PlotlyChart data={bannedServersConfig.data} layout={bannedServersConfig.layout} />
+                            <div className="mt-4 flex items-center justify-center">
+                                <Button variant="outline" size="sm" className="border-gray-800 text-gray-400 hover:text-white" asChild>
+                                    <Link href={`/dashboard/bans?team=${selectedTeam.id}`}>
+                                        <Users className="mr-2 h-4 w-4" />
+                                        View All Banned Servers
+                                    </Link>
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -287,7 +239,7 @@ export default function AnalyticsDashboard() {
                         <div className="grid gap-4 md:grid-cols-3">
                             <div className="space-y-2">
                                 <h3 className="text-sm font-medium text-gray-400">Average Response Time</h3>
-                                <div className="flex items-end gap-3">
+                                <div className="flex items-end gap-2">
                                     <span className="text-2xl font-bold">1.4h</span>
                                     <span className="text-xs text-green-400">-15% from last month</span>
                                 </div>
@@ -296,7 +248,7 @@ export default function AnalyticsDashboard() {
 
                             <div className="space-y-2">
                                 <h3 className="text-sm font-medium text-gray-400">Resolution Rate</h3>
-                                <div className="flex items-end gap-3">
+                                <div className="flex items-end gap-2">
                                     <span className="text-2xl font-bold">92%</span>
                                     <span className="text-xs text-green-400">+3% from last month</span>
                                 </div>
@@ -305,7 +257,7 @@ export default function AnalyticsDashboard() {
 
                             <div className="space-y-2">
                                 <h3 className="text-sm font-medium text-gray-400">Moderator Activity</h3>
-                                <div className="flex items-end gap-3">
+                                <div className="flex items-end gap-2">
                                     <span className="text-2xl font-bold">4.2</span>
                                     <span className="text-xs text-gray-400">actions per day</span>
                                 </div>
