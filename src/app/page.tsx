@@ -343,7 +343,7 @@ export default function Home() {
             <span className="text-sm font-medium">Draupnir4All</span>
           </div>
           <p className="text-center text-sm text-gray-500 md:text-left">
-            © 2025 Draupnir4All. All rights reserved. Built for the Matrix ecosystem.
+            © 2025 Draupnir4All. Built for the Matrix ecosystem.
           </p>
           <div className="flex gap-4">
             <Link className="text-sm font-medium text-gray-500 transition-colors hover:text-white" href="#">
