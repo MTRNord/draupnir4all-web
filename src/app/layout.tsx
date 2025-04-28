@@ -7,8 +7,8 @@ import { SessionProvider } from "@/contexts/session-context"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Matrix Moderator - Secure Moderation for Matrix.org",
-  description: "Powerful moderation tools for Matrix.org communities using Draupnir bots.",
+  title: "Matrix Moderator - Secure Moderation for Matrix",
+  description: "Powerful moderation tools for Matrix communities using Draupnir bots.",
 }
 
 export default function RootLayout({
