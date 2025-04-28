@@ -8,7 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 import { Heatmap } from "@/components/analytics/heatmap"
-import { useSearchParams } from "next/navigation"
+import { redirect, useSearchParams } from "next/navigation"
 import { mockTeams } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
 import { BannedServerData, generateHeatmapData, getBannedServersConfig, getMonthlyActivityConfig, getReportTypesConfig, getRoomActivityConfig, MonthlyActivityData, ReportTypeData, RoomActivityData } from "@/components/analytics/chart-configs";
@@ -16,6 +16,7 @@ import { PlotlyChart } from "@/components/analytics/plotly-chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import InfoCardWithTrend from "@/components/analytics/info-card-with-trend";
+import { useSession } from "@/contexts/session-context";
 
 // Mock data for charts
 const roomActivityData: RoomActivityData[] = [
@@ -64,6 +65,10 @@ export default function AnalyticsDashboard() {
     const teamIdParam = searchParams.get("team")
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
 
+    const { user } = useSession()
+    if (!user) {
+        redirect("/login")
+    }
 
     // Update selected team when URL param changes
     useEffect(() => {

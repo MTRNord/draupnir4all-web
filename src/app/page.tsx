@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const experimental_ppr = true
-const d4all_support_url = process.env.D4ALL_SUPPORT_URL || "#"
+const d4all_support_url = process.env.NEXT_PUBLIC_D4ALL_SUPPORT_URL || "#"
 
 export default function Home() {
   return (

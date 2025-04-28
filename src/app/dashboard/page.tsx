@@ -1,11 +1,14 @@
-import { redirect } from "next/navigation"
+"use client"
+import { useSession } from "@/contexts/session-context"
+import { redirect, useSearchParams } from "next/navigation"
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
-  const teamId = (await searchParams).team as string | undefined
+export default function DashboardPage() {
+  const { user } = useSession()
+  const searchParams = useSearchParams()
+  const teamId = searchParams.get("team")
+  if (!user) {
+    redirect("/login")
+  }
 
   // Redirect to overview with team parameter
   const redirectUrl = teamId ? `/dashboard/overview?team=${teamId}` : "/dashboard/overview"

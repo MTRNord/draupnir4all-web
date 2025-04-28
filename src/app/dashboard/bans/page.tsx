@@ -8,8 +8,9 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EBanTypes, mockPolicyLists, mockTeams, } from "../mockData";
 import AddBan from "../../../components/modals/add-ban";
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import TabNavigation from "../../../components/dashboard/tab-navigation";
+import { useSession } from "@/contexts/session-context";
 
 
 export default function Bans() {
@@ -17,6 +18,10 @@ export default function Bans() {
     const teamIdParam = searchParams.get("team")
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
     const [searchTerm, setSearchTerm] = useState<string>("");
+    const { user } = useSession()
+    if (!user) {
+        redirect("/login")
+    }
 
     // Update selected team when URL param changes
     useEffect(() => {

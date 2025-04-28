@@ -1,35 +1,25 @@
+"use client"
 import { AlertTriangle, Ban, CheckCircle } from "lucide-react"
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
-import { mockPolicyLists, mockReports, mockTeams, PolicyList, Report, Team } from "../mockData"
+import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
+import { useSession } from "@/contexts/session-context"
+import { redirect, useSearchParams } from "next/navigation"
 
-interface OverviewPageProps {
-    selectedTeam: Team;
-    reports: Report[];
-    policyLists: PolicyList[];
-}
 
-async function fetchData(teamIdParam?: string): Promise<OverviewPageProps> {
-    "use cache";
-    // TODO: Check if we really can cache the real data here
+export default function OverviewPage() {
+    const searchParams = useSearchParams()
+    const { user } = useSession()
+    if (!user) {
+        redirect("/login")
+    }
 
+    const teamIdParam = searchParams.get("team");
     const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
     const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);
     const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id);
-
-    return {
-        selectedTeam,
-        reports,
-        policyLists,
-    };
-}
-
-export default async function OverviewPage({ searchParams }: { searchParams: Promise<{ team?: string }> }) {
-    const { team } = await searchParams;
-    const { selectedTeam, reports, policyLists } = await fetchData(team);
 
     return (
         <>
@@ -77,6 +67,9 @@ export default async function OverviewPage({ searchParams }: { searchParams: Pro
                                 <div className="h-3 w-3 rounded-full bg-green-500"></div>
                                 <div className="text-sm font-medium">Online</div>
                             </div>
+                            if (!user) {
+                                redirect("/login")
+                            }
                             <p className="text-xs text-gray-400">Last restart: 7d ago</p>
                         </CardContent>
                     </Card>

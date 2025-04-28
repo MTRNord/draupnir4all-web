@@ -1,71 +1,158 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, type ReactNode } from "react"
 import { useRouter } from "next/navigation"
-
-type User = {
-    id: string
-    matrixId: string
-    displayName: string
-    avatarUrl?: string
-    isAdmin: boolean
-}
+import { createSession, deleteSession, getSessionUser, User } from "@/lib/auth"
 
 type SessionContextType = {
-    user: User | null
+    user?: User
     isLoading: boolean
     isAuthenticated: boolean
+    discoveryStatus: "idle" | "loading" | "success" | "error"
+    homeserverUrl?: string
+    token?: string
     login: (matrixId: string) => Promise<void>
     register: (matrixId: string) => Promise<void>
     logout: () => Promise<void>
+    discoverHomeserver: (matrixId: string) => Promise<void>
+}
+
+interface WellKnownResponse {
+    "m.homeserver"?: {
+        base_url: string
+    }
 }
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined)
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const [user, setUser] = useState<User | undefined>(getSessionUser())
+    const [isLoading, setIsLoading] = useState(false)
+    const [homeserverUrl, setHomeserverUrl] = useState<string | undefined>()
+    const [discoveryStatus, setDiscoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+    const [token, setToken] = useState<string | undefined>()
     const router = useRouter()
 
-    // Check for existing session on mount
-    useEffect(() => {
-        const checkSession = async () => {
-            try {
-                const response = await fetch("/api/auth/session")
-                const data = await response.json()
 
-                if (data.authenticated && data.user) {
-                    setUser(data.user)
-                }
-            } catch (error) {
-                console.error("Failed to check session:", error)
-            } finally {
-                setIsLoading(false)
-            }
+    const discoverHomeserver = async (matrixId: string) => {
+        if (matrixId === "") {
+            return
         }
+        setDiscoveryStatus("loading")
+        if (!matrixId.includes(":")) {
+            setDiscoveryStatus("error")
+            throw new Error("Invalid Matrix ID format. Please include a domain (e.g., @user:domain).")
+        }
+        // Extract username and server from Matrix ID
+        const serverName = matrixId.split(":").pop()
+        try {
+            // Try to fetch well-known data
+            const wellKnownUrl = `https://${serverName}/.well-known/matrix/client`
 
-        checkSession()
-    }, [])
+            try {
+                const response = await fetch(wellKnownUrl)
+                if (response.ok) {
+                    const data = (await response.json()) as WellKnownResponse
+                    if (data["m.homeserver"]?.base_url) {
+                        setDiscoveryStatus("success")
+                        setHomeserverUrl(data["m.homeserver"].base_url)
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("Well-known discovery failed, falling back to direct server", e)
+            }
+
+            // Fallback to direct server
+            setDiscoveryStatus("success")
+            setHomeserverUrl(`https://${serverName}`)
+        } catch (err) {
+            setDiscoveryStatus("error")
+            setHomeserverUrl(undefined)
+            console.error("Homeserver discovery failed:", err)
+            throw new Error("Could not discover Matrix homeserver. Please check your Matrix ID.")
+        }
+    }
 
     const login = async (matrixId: string) => {
         setIsLoading(true)
         try {
-            const response = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ matrixId }),
+            // Step 1: Authenticate with the Matrix homeserver
+            console.log(`Authenticating with ${homeserverUrl}`)
+
+            // In a real implementation:
+            // const loginResponse = await fetch(`${homeserverUrl}/_matrix/client/v3/login`, {
+            //   method: 'POST',
+            //   headers: { 'Content-Type': 'application/json' },
+            //   body: JSON.stringify({
+            //     type: 'm.login.password',
+            //     identifier: {
+            //       type: 'm.id.user',
+            //       user: username
+            //     },
+            //     password
+            //   })
+            // })
+
+            // const loginData = await loginResponse.json()
+            // if (!loginData.access_token) {
+            //   throw new Error(loginData.error || 'Login failed')
+            // }
+
+            // Simulate login delay
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+
+            // Simulate access token
+            // TODO: Fix me
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const mockAccessToken = "syt_" + Math.random().toString(36).substring(2, 15)
+
+            // Step 2: Request an OpenID token
+            console.log(`Requesting OpenID token for ${matrixId}`)
+
+            // In a real implementation:
+            // const openIdResponse = await fetch(
+            //   `${homeserverUrl}/_matrix/client/v3/user/${encodeURIComponent(matrixId)}/openid/request_token`,
+            //   {
+            //     method: 'POST',
+            //     headers: {
+            //       'Content-Type': 'application/json',
+            //       'Authorization': `Bearer ${loginData.access_token}`
+            //     },
+            //     body: JSON.stringify({})
+            //   }
+            // )
+
+            // const openIdData = await openIdResponse.json()
+            // if (!openIdData.access_token) {
+            //   throw new Error(openIdData.error || 'Failed to get OpenID token')
+            // }
+
+            // Simulate OpenID token request delay
+            await new Promise((resolve) => setTimeout(resolve, 500))
+
+            // Simulate OpenID token
+            const mockOpenIdToken =
+                "ey" +
+                Math.random().toString(36).substring(2, 15) +
+                "." +
+                Math.random().toString(36).substring(2, 15) +
+                "." +
+                Math.random().toString(36).substring(2, 15)
+
+            // Save the OpenID token to the session
+            setToken(mockOpenIdToken)
+            createSession({
+                matrixId,
+                displayName: matrixId.split(":")[0].substring(1),
+                id: "user_" + Math.random().toString(36).substring(2, 9),
+                isAdmin: false,
             })
-
-            if (!response.ok) {
-                throw new Error("Authentication failed")
-            }
-
-            const data = await response.json()
-            setUser(data.user)
-            router.push("/dashboard")
-        } catch (error) {
-            console.error("Login failed:", error)
-            throw error
+            router.replace("/dashboard")
+            return;
+        } catch (err) {
+            console.error("Matrix login failed:", err)
+            throw err instanceof Error ? err.message : "Authentication failed"
         } finally {
             setIsLoading(false)
         }
@@ -86,7 +173,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             const data = await response.json()
             setUser(data.user)
-            router.push("/dashboard")
+            router.replace("/dashboard")
         } catch (error) {
             console.error("Registration failed:", error)
             throw error
@@ -97,8 +184,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     const logout = async () => {
         try {
-            await fetch("/api/auth/logout", { method: "POST" })
-            setUser(null)
+            setUser(undefined)
+            deleteSession()
             router.push("/")
         } catch (error) {
             console.error("Logout failed:", error)
@@ -110,10 +197,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             value={{
                 user,
                 isLoading,
+                homeserverUrl,
+                discoveryStatus,
                 isAuthenticated: !!user,
+                token,
                 login,
                 register,
                 logout,
+                discoverHomeserver,
             }}
         >
             {children}

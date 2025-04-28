@@ -26,17 +26,22 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useSearchParams } from "next/navigation"
+import { redirect, useSearchParams } from "next/navigation"
 import { mockTeams } from "../mockData"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
 import TabNavigation from "../../../components/dashboard/tab-navigation"
+import { useSession } from "@/contexts/session-context";
 
 
 export default function TeamManagement() {
     const searchParams = useSearchParams()
     const teamIdParam = searchParams.get("team")
     const [selectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
+    const { user } = useSession()
+    if (!user) {
+        redirect("/login")
+    }
 
     // TODO: Make this actual pages so we can use more ssr
     const [activeTab, setActiveTab] = useState("members")

@@ -1,39 +1,65 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { Shield, ArrowRight, Loader2 } from "lucide-react"
+import { Shield, ArrowRight, Loader2, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { MatrixLoginForm } from "@/components/matrix-login-form"
 import { useSession } from "@/contexts/session-context"
+import { redirect } from "next/navigation"
 
 export default function LoginPage() {
-  const { login, isLoading } = useSession()
   const [matrixId, setMatrixId] = useState("")
   const [step, setStep] = useState<"initial" | "login" | "error">("initial")
+  const [password, setPassword] = useState("")
+  const { isLoading, login, discoveryStatus, homeserverUrl, discoverHomeserver, user } = useSession();
+  const [loginLoading, setLoginLoading] = useState(isLoading)
   const [errorMessage, setErrorMessage] = useState("")
 
-  const startMatrixAuth = () => {
-    if (!matrixId) return
-    setStep("login")
+  if (user) {
+    redirect("/dashboard")
   }
 
-  // TODO: Fix me
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleLoginSuccess = async (token: string) => {
-    try {
-      // Use the login function from session context
-      await login(matrixId)
-    } catch (error) {
-      console.error("Login failed", error)
-      setErrorMessage(error instanceof Error ? error.message : "Authentication failed")
-      setStep("error")
+  useEffect(() => {
+    console.log("Discovery status changed:", discoveryStatus)
+    if (discoveryStatus === "loading") {
+      setLoginLoading(true)
+    } else if (discoveryStatus === "error") {
+      setErrorMessage("Failed to discover homeserver. Please check your Matrix ID format.")
+      setLoginLoading(false)
+    } else if (discoveryStatus === "success") {
+      setErrorMessage("")
+      setLoginLoading(false)
     }
-  }
+  }, [discoveryStatus])
+
+  const startMatrixAuth = useCallback(() => {
+    if (!matrixId) return
+    setLoginLoading(true)
+    discoverHomeserver(matrixId).then(() => {
+      setStep("login")
+    }).catch((err) => {
+      console.error("Error discovering homeserver:", err)
+      setErrorMessage("Please check your Matrix ID format. It should be like @username:matrix.org")
+      setStep("error")
+      setLoginLoading(false)
+    });
+  }, [matrixId, discoverHomeserver]);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+    e.preventDefault()
+    setErrorMessage("")
+
+    try {
+      await login(matrixId)
+    } catch (err) {
+      console.error("Login failed:", err)
+      setErrorMessage("Login failed. Please check your credentials.")
+    }
+  }, [login, matrixId])
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
@@ -69,10 +95,86 @@ export default function LoginPage() {
             )}
 
             {step === "login" && (
-              <MatrixLoginForm matrixId={matrixId} onSuccess={handleLoginSuccess} onCancel={() => setStep("initial")} />
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="matrix-username">Matrix ID</Label>
+                    <Button type="button" variant="ghost" size="sm" className="h-6 px-2 text-gray-400" onClick={() => setStep("initial")}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-md bg-gray-900 px-3 py-2 text-sm">
+                    <span>{matrixId}</span>
+                  </div>
+
+                  {discoveryStatus === "loading" && (
+                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Discovering homeserver...
+                    </div>
+                  )}
+
+                  {discoveryStatus === "success" && homeserverUrl && (
+                    <p className="text-xs text-gray-400">Authenticating with {homeserverUrl.replace(/^https?:\/\//, "")}</p>
+                  )}
+
+                  {discoveryStatus === "error" && (
+                    <p className="text-xs text-red-400">Failed to discover homeserver. Please check your Matrix ID and ensure it&apos;s format is &quot;@localpart:example.com&quot;.</p>
+                  )}
+                </div>
+
+                {discoveryStatus === "success" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="matrix-password">Password</Label>
+                    <Input
+                      id="matrix-password"
+                      type="password"
+                      placeholder="Enter your Matrix password"
+                      className="bg-gray-900 border-gray-800"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-purple-600 text-white hover:bg-purple-700"
+                    disabled={isLoading || !password || discoveryStatus !== "success"}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Authenticating...
+                      </>
+                    ) : (
+                      "Log in"
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
+                    onClick={() => {
+                      setStep("initial")
+                      setMatrixId("")
+                      setPassword("")
+                    }}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+
+                <p className="text-xs text-gray-400 text-center">
+                  Your credentials are sent directly to your Matrix homeserver. Draupnir4All only receives a verification token.
+                </p>
+              </form>
             )}
 
-            {isLoading && (
+            {(isLoading || loginLoading) && (
               <div className="flex flex-col items-center justify-center py-6 space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
                 <p className="text-gray-300">Logging in...</p>
