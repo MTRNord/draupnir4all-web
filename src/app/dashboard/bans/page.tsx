@@ -19,9 +19,14 @@ export default function Bans() {
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
     const [searchTerm, setSearchTerm] = useState<string>("");
     const { user } = useSession()
-    if (!user) {
-        redirect("/login")
-    }
+
+
+    useEffect(() => {
+        // Check if the user is logged in
+        if (!user) {
+            redirect("/login")
+        }
+    }, [user])
 
     // Update selected team when URL param changes
     useEffect(() => {

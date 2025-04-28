@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { UserPlus, Settings, Trash2, LogOut } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -39,9 +39,13 @@ export default function TeamManagement() {
     const teamIdParam = searchParams.get("team")
     const [selectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
     const { user } = useSession()
-    if (!user) {
-        redirect("/login")
-    }
+
+    useEffect(() => {
+        // Check if the user is logged in
+        if (!user) {
+            redirect("/login")
+        }
+    }, [user])
 
     // TODO: Make this actual pages so we can use more ssr
     const [activeTab, setActiveTab] = useState("members")

@@ -27,9 +27,14 @@ export default function ReportsPage() {
     const teamIdParam = searchParams.get("team")
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
     const { user } = useSession()
-    if (!user) {
-        redirect("/login")
-    }
+
+
+    useEffect(() => {
+        // Check if the user is logged in
+        if (!user) {
+            redirect("/login")
+        }
+    }, [user])
 
     // Update selected team when URL param changes
     useEffect(() => {

@@ -7,16 +7,20 @@ import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
 import { useSession } from "@/contexts/session-context"
 import { redirect, useSearchParams } from "next/navigation"
-
+import { useEffect } from "react"
 
 export default function OverviewPage() {
     const searchParams = useSearchParams()
     const { user } = useSession()
-    if (!user) {
-        redirect("/login")
-    }
-
     const teamIdParam = searchParams.get("team");
+
+    useEffect(() => {
+        // Check if the user is logged in
+        if (!user) {
+            redirect("/login")
+        }
+    }, [user])
+
     const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
     const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);
     const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id);
@@ -67,9 +71,6 @@ export default function OverviewPage() {
                                 <div className="h-3 w-3 rounded-full bg-green-500"></div>
                                 <div className="text-sm font-medium">Online</div>
                             </div>
-                            if (!user) {
-                                redirect("/login")
-                            }
                             <p className="text-xs text-gray-400">Last restart: 7d ago</p>
                         </CardContent>
                     </Card>
