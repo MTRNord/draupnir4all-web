@@ -12,9 +12,10 @@ interface AddBanProps {
     policyLists: PolicyList[];
     filled?: boolean;
     header?: boolean;
+    buttonClasses?: string;
 }
 
-export default function AddBan({ filled, policyLists, header }: AddBanProps) {
+export default function AddBan({ filled, policyLists, header, buttonClasses }: AddBanProps) {
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -22,19 +23,19 @@ export default function AddBan({ filled, policyLists, header }: AddBanProps) {
                     <Button
                         variant="outline"
                         size="sm"
-                        className="hidden md:flex border-red-500 text-red-400 hover:bg-red-950 hover:text-red-300"
+                        className={`${buttonClasses} border-red-500 text-red-400 hover:bg-red-950 hover:text-red-300`}
                     >
                         <Ban className="mr-2 h-4 w-4" />
                         Add Ban
                     </Button>
                 ) : (
                     filled ? (
-                        <Button size="sm" className="bg-purple-600 text-white hover:bg-purple-700">
+                        <Button size="sm" className={`${buttonClasses} bg-purple-600 text-white hover:bg-purple-700`}>
                             <Ban className="mr-2 h-4 w-4" />
                             Add Ban
                         </Button>
                     ) : (
-                        <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-purple-400">
+                        <Button variant="ghost" size="sm" className={`${buttonClasses} h-7 px-2 text-xs text-purple-400`}>
                             <Plus className="h-3 w-3 mr-1" />
                             Add Ban
                         </Button>

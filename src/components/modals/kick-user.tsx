@@ -9,7 +9,7 @@ export default function KickUserModal() {
                 <Button
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start border-orange-500 text-orange-400 hover:bg-orange-950 hover:text-orange-300"
+                    className="border-orange-500 text-orange-400 hover:bg-orange-950 hover:text-orange-300"
                 >
                     <UserX className="mr-2 h-4 w-4" />
                     Kick User

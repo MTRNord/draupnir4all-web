@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Shield, Bell, Menu, Ban, LogOut, Crown, ChevronDown, Plus, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator"
 import {
     DropdownMenu,
@@ -23,6 +23,8 @@ import AddBan from "../modals/add-ban"
 import KickUserModal from "../modals/kick-user"
 import CreateBotModal from "../modals/create-bot"
 import { mockPolicyLists, Team } from "../../app/dashboard/mockData"
+// @ts-expect-error - Missing types for Radix UI visuallyHidden
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface Notification {
     id: string
@@ -130,15 +132,6 @@ export function DashboardHeader({ teams }: DashboardHeaderProps) {
         }
     }
 
-    const navigateToTab = (tab: string) => {
-        const baseUrl = tab === "overview" ? "/dashboard" : `/dashboard/${tab}`
-
-        // Preserve team parameter
-        const params = new URLSearchParams()
-        params.set("team", selectedTeam.id)
-        router.push(`${baseUrl}?${params.toString()}`)
-    }
-
     return (
         <header className="sticky top-0 z-10 border-b border-gray-800 bg-black/80 backdrop-blur-sm">
             <div className="container flex h-16 items-center justify-between px-4 md:px-6">
@@ -151,7 +144,7 @@ export function DashboardHeader({ teams }: DashboardHeaderProps) {
                     {/* Global Team Selector */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="border-purple-500 text-purple-400 hover:bg-purple-950">
+                            <Button variant="outline" className="hidden md:flex border-purple-500 text-purple-400 hover:bg-purple-950">
                                 <Crown className="mr-2 h-4 w-4" />
                                 {selectedTeam.name}
                                 <ChevronDown className="ml-2 h-4 w-4" />
@@ -282,6 +275,9 @@ export function DashboardHeader({ teams }: DashboardHeaderProps) {
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="right" className="bg-gray-950 border-gray-800 p-0">
+                            <VisuallyHidden asChild>
+                                <SheetTitle>Navigaion</SheetTitle>
+                            </VisuallyHidden>
                             <div className="flex flex-col h-full">
                                 <div className="border-b border-gray-800 p-4">
                                     <div className="flex items-center gap-2">
@@ -301,7 +297,7 @@ export function DashboardHeader({ teams }: DashboardHeaderProps) {
                                                 <ChevronDown className="ml-2 h-4 w-4" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-56 bg-gray-900 border-gray-800">
+                                        <DropdownMenuContent className="bg-gray-900 border-gray-800">
                                             <DropdownMenuLabel>Your Bots</DropdownMenuLabel>
                                             <DropdownMenuSeparator className="bg-gray-800" />
                                             {teams.map((team) => (
@@ -317,41 +313,46 @@ export function DashboardHeader({ teams }: DashboardHeaderProps) {
                                     </DropdownMenu>
                                 </div>
                                 <nav className="flex flex-col p-4 gap-2">
-                                    <Button
-                                        variant={activeTab === "overview" ? "secondary" : "ghost"}
-                                        className="justify-start"
-                                        onClick={() => navigateToTab("overview")}
-                                    >
-                                        Overview
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === "reports" ? "secondary" : "ghost"}
-                                        className="justify-start"
-                                        onClick={() => navigateToTab("reports")}
-                                    >
-                                        Reports
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === "bans" ? "secondary" : "ghost"}
-                                        className="justify-start"
-                                        onClick={() => navigateToTab("bans")}
-                                    >
-                                        Bans
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === "analytics" ? "secondary" : "ghost"}
-                                        className="justify-start"
-                                        onClick={() => navigateToTab("analytics")}
-                                    >
-                                        Analytics
-                                    </Button>
-                                    <Button
-                                        variant={activeTab === "settings" ? "secondary" : "ghost"}
-                                        className="justify-start"
-                                        onClick={() => navigateToTab("settings")}
-                                    >
-                                        Settings
-                                    </Button>
+                                    <Link href="/dashboard/overview">
+                                        <Button
+                                            variant={activeTab === "overview" ? "secondary" : "ghost"}
+                                            className="justify-start w-full"
+                                        >
+                                            Overview
+                                        </Button>
+                                    </Link>
+                                    <Link href="/dashboard/reports">
+                                        <Button
+                                            variant={activeTab === "reports" ? "secondary" : "ghost"}
+                                            className="justify-start w-full"
+                                        >
+                                            Reports
+                                        </Button>
+                                    </Link>
+                                    <Link href="/dashboard/bans">
+                                        <Button
+                                            variant={activeTab === "bans" ? "secondary" : "ghost"}
+                                            className="justify-start w-full"
+                                        >
+                                            Bans
+                                        </Button>
+                                    </Link>
+                                    <Link href="/dashboard/analytics">
+                                        <Button
+                                            variant={activeTab === "analytics" ? "secondary" : "ghost"}
+                                            className="justify-start w-full"
+                                        >
+                                            Analytics
+                                        </Button>
+                                    </Link>
+                                    <Link href="/dashboard/settings">
+                                        <Button
+                                            variant={activeTab === "settings" ? "secondary" : "ghost"}
+                                            className="justify-start w-full"
+                                        >
+                                            Settings
+                                        </Button>
+                                    </Link>
 
                                     <Separator className="my-2" />
 
