@@ -1,6 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
 import { Team } from "../../app/dashboard/mockData";
+import AreYouSureDialog from "../modals/are-you-sure";
 
 interface ProtectedRomsListProps {
     team: Team;
@@ -14,10 +13,7 @@ export default function ProtectedRomsList({ team }: ProtectedRomsListProps) {
                     <div>
                         <p>{room}</p>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-400 hover:text-red-400">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Remove</span>
-                    </Button>
+                    <AreYouSureDialog titlePart="Protected Room" description="Are you sure you want to unprotect the room?" />
                 </div>
             ))}
         </div>
