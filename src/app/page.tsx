@@ -4,7 +4,6 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-// @ts-expect-error - Missing types for Radix UI visuallyHidden
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const experimental_ppr = true

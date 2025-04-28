@@ -23,7 +23,6 @@ import AddBan from "../modals/add-ban"
 import KickUserModal from "../modals/kick-user"
 import CreateBotModal from "../modals/create-bot"
 import { mockPolicyLists, Team } from "../../app/dashboard/mockData"
-// @ts-expect-error - Missing types for Radix UI visuallyHidden
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface Notification {
