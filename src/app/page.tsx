@@ -1,10 +1,14 @@
 import Link from "next/link"
-import { Shield, Users, BarChart, Settings, AlertTriangle, CheckCircle, Ban, Eye, LogIn } from "lucide-react"
+import { Shield, Users, BarChart, Settings, AlertTriangle, CheckCircle, Ban, Eye, LogIn, Menu } from "lucide-react"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+// @ts-expect-error - Missing types for Radix UI visuallyHidden
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const experimental_ppr = true
+const d4all_support_url = process.env.D4ALL_SUPPORT_URL || "#"
 
 export default function Home() {
   return (
@@ -16,36 +20,92 @@ export default function Home() {
             <span className="text-xl font-bold tracking-tighter">Draupnir4All</span>
           </div>
           <nav className="hidden md:flex gap-6">
-            <Link className="text-sm font-medium text-gray-400 transition-colors hover:text-white" href="#">
-              Home
-            </Link>
-            <Link className="text-sm font-medium text-gray-400 transition-colors hover:text-white" href="#">
+            <Link className="text-sm font-medium text-gray-400 transition-colors hover:text-white" href="#features">
               Features
             </Link>
-            <Link className="text-sm font-medium text-gray-400 transition-colors hover:text-white" href="#">
+            <Link
+              className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+              href="https://the-draupnir-project.github.io/draupnir-documentation/category/moderators-guide"
+            >
               Documentation
             </Link>
-            <Link className="text-sm font-medium text-gray-400 transition-colors hover:text-white" href="#">
+            <Link
+              className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+              href={d4all_support_url}
+            >
               Support
             </Link>
           </nav>
           <div className="flex items-center gap-4">
-            <Link href="/login">
-              <Button
-                variant="outline"
-                className="hidden md:flex border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
-              >
-                <LogIn className="mr-2 h-4 w-4" />
-                Log In
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button
-                className="bg-purple-600 text-white hover:bg-purple-700"
-              >
-                Register
-              </Button>
-            </Link>
+            <div className="hidden md:flex items-center gap-4">
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  className="border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
+                >
+                  <LogIn className="mr-2 h-4 w-4" />
+                  Log In
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button className="bg-purple-600 text-white hover:bg-purple-700">Register</Button>
+              </Link>
+            </div>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden">
+                  <Menu className="h-5 w-5" />
+                  <span className="sr-only">Toggle menu</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="bg-gray-950 border-gray-800 p-0">
+                <VisuallyHidden asChild>
+                  <SheetTitle>Navigaion</SheetTitle>
+                </VisuallyHidden>
+                <div className="flex flex-col h-full">
+                  <div className="border-b border-gray-800 p-4">
+                    <div className="flex items-center gap-2">
+                      <Shield className="h-5 w-5 text-purple-400" />
+                      <span className="font-medium">Draupnir4All</span>
+                    </div>
+                  </div>
+                  <nav className="flex flex-col p-4 gap-4">
+                    <Link
+                      className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+                      href="#features"
+                    >
+                      Features
+                    </Link>
+                    <Link
+                      className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+                      href="https://the-draupnir-project.github.io/draupnir-documentation/category/moderators-guide"
+                    >
+                      Documentation
+                    </Link>
+                    <Link
+                      className="text-sm font-medium text-gray-400 transition-colors hover:text-white"
+                      href={d4all_support_url}
+                    >
+                      Support
+                    </Link>
+                  </nav>
+                  <div className="mt-auto border-t border-gray-800 p-4 flex flex-col gap-3">
+                    <Link href="/login" className="w-full">
+                      <Button
+                        variant="outline"
+                        className="w-full border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
+                      >
+                        <LogIn className="mr-2 h-4 w-4" />
+                        Log In
+                      </Button>
+                    </Link>
+                    <Link href="/register" className="w-full">
+                      <Button className="w-full bg-purple-600 text-white hover:bg-purple-700">Register</Button>
+                    </Link>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </header>
@@ -58,24 +118,22 @@ export default function Home() {
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">Draupnir4All</h1>
                   <p className="max-w-[600px] text-gray-300 md:text-xl">
-                    Self-service moderation for Matrix communities. Deploy your own Draupnir bot instance and
-                    protect your spaces with advanced filtering, reporting, and management.
+                    Self-service moderation for Matrix communities. Deploy your own Draupnir bot instance and protect
+                    your spaces with advanced filtering, reporting, and management.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
                   <Link href="/register">
+                    <Button className="bg-purple-600 text-white hover:bg-purple-700">Register with Matrix</Button>
+                  </Link>
+                  <Link href="https://the-draupnir-project.github.io/draupnir-documentation/category/moderators-guide">
                     <Button
-                      className="bg-purple-600 text-white hover:bg-purple-700"
+                      variant="outline"
+                      className="border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
                     >
-                      Register with Matrix
+                      View Documentation
                     </Button>
                   </Link>
-                  <Button
-                    variant="outline"
-                    className="border-purple-500 text-purple-400 hover:bg-purple-950 hover:text-purple-300"
-                  >
-                    View Documentation
-                  </Button>
                 </div>
               </div>
               <div className="flex items-center justify-center">
@@ -155,7 +213,9 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
               <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">Draupnir Features</h2>
+                <h2 id="features" className="scroll-mt-24 text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl">
+                  Draupnir Features
+                </h2>
                 <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl">
                   Powerful moderation tools designed specifically for Matrix communities
                 </p>
@@ -188,9 +248,7 @@ export default function Home() {
                   <CardDescription className="text-gray-400">Placeholder TODO</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-300">
-                    Meow Meow Meow
-                  </p>
+                  <p className="text-sm text-gray-300">Meow Meow Meow</p>
                 </CardContent>
               </Card>
               <Card className="border-gray-800 bg-black">
@@ -245,9 +303,7 @@ export default function Home() {
                   <CardDescription className="text-gray-400">Placeholder TODO</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-gray-300">
-                    Meow Meow Meow
-                  </p>
+                  <p className="text-sm text-gray-300">Meow Meow Meow</p>
                 </CardContent>
               </Card>
             </div>
@@ -266,11 +322,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <Link href="/register">
-                  <Button
-                    className="bg-purple-600 text-white hover:bg-purple-700"
-                  >
-                    Register with Matrix
-                  </Button>
+                  <Button className="bg-purple-600 text-white hover:bg-purple-700">Register with Matrix</Button>
                 </Link>
                 <Link href="/login">
                   <Button
