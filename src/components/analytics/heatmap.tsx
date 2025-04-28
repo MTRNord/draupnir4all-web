@@ -59,7 +59,7 @@ export function Heatmap({ data, title, colorIntensityLabel = "Activity", classNa
 
       <div className="flex gap-2">
         {/* Days of week labels */}
-        <div className="flex flex-col pt-6 pr-2 text-xs text-gray-500">
+        <div className="flex flex-col pr-2 text-xs text-gray-500">
           <div className="h-[18px] mb-[2px]">Mon</div>
           <div className="h-[18px] mb-[2px]">Tue</div>
           <div className="h-[18px] mb-[2px]">Wed</div>
