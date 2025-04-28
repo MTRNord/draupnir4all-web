@@ -113,12 +113,6 @@ export default function LoginPage() {
                 </p>
               </>
             )}
-
-            {isLoading && (
-              <Button className="w-full" disabled>
-                Please wait...
-              </Button>
-            )}
           </CardFooter>
         </Card>
       </main>

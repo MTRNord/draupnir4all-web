@@ -107,12 +107,6 @@ export default function RegisterPage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             )}
-
-            {isLoading && (
-              <Button className="w-full" disabled>
-                Please wait...
-              </Button>
-            )}
           </CardFooter>
         </Card>
       </main>
