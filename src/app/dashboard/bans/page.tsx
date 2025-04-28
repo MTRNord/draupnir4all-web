@@ -4,7 +4,7 @@ import { Ban, PenOff, Pen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EBanTypes, mockPolicyLists, mockTeams, } from "../mockData";
 import AddBan from "../../../components/modals/add-ban";
@@ -16,6 +16,7 @@ export default function Bans() {
     const searchParams = useSearchParams()
     const teamIdParam = searchParams.get("team")
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
+    const [searchTerm, setSearchTerm] = useState<string>("");
 
     // Update selected team when URL param changes
     useEffect(() => {
@@ -37,6 +38,10 @@ export default function Bans() {
         if (filter === "servers") return entry.type === EBanTypes.Server;
         if (filter === "rooms") return entry.type === EBanTypes.Room;
         return false;
+    }).filter((entry) => {
+        if (!searchTerm) return true;
+        const searchLower = searchTerm.toLowerCase();
+        return entry.target.toLowerCase().includes(searchLower) || entry.reason.toLowerCase().includes(searchLower);
     });
 
     return (
@@ -93,7 +98,10 @@ export default function Bans() {
                                     {selectedList.name || "Policy List"} Entries
                                 </h3>
                                 <div className="flex items-center gap-2">
-                                    <Input placeholder="Search entries..." className="h-8 w-[200px] bg-gray-900 border-gray-800" />
+                                    <Input onChange={(e: ChangeEvent) => {
+                                        const value = (e.target as HTMLInputElement).value;
+                                        setSearchTerm(value)
+                                    }} value={searchTerm} placeholder="Search entries..." className="h-8 w-[200px] bg-gray-900 border-gray-800" />
                                     <div className="flex items-center gap-2">
                                         <Select defaultValue="all" onValueChange={setFilter}>
                                             <SelectTrigger className="h-8 w-[120px] bg-gray-900 border-gray-800">
