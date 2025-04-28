@@ -14,8 +14,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
+    if (!matrixId.includes(":")) {
+      return NextResponse.json({ error: "Invalid Matrix ID format" }, { status: 400 })
+    }
+
     // Extract server name from Matrix ID
-    const serverName = matrixId.includes(":") ? matrixId.split(":").pop() || "matrix.org" : "matrix.org"
+    const serverName = matrixId.split(":").pop()
 
     // Discover homeserver URL
     let homeserverUrl = `https://${serverName}`

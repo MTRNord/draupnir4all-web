@@ -29,22 +29,18 @@ export function MatrixLoginForm({ matrixId, onSuccess, onCancel }: MatrixLoginFo
   const [homeserverUrl, setHomeserverUrl] = useState<string | null>(null)
   const [discoveryStatus, setDiscoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
 
-  // Extract username and server from Matrix ID
-  const serverName = matrixId.includes(":") ? matrixId.split(":").pop() || "matrix.org" : "matrix.org"
-  // TODO: Fix me
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const username = matrixId.startsWith("@")
-    ? matrixId.includes(":")
-      ? matrixId.split(":")[0].substring(1)
-      : matrixId.substring(1)
-    : matrixId
-
   // Discover homeserver URL
   useEffect(() => {
     async function discoverHomeserver() {
-      if (!serverName) return
+      if (!matrixId.includes(":")) {
+        setError("Invalid Matrix ID format. Please include a domain (e.g., @user:domain).")
+        return null
+      }
+      // Extract username and server from Matrix ID
+      const serverName = matrixId.split(":").pop()
+      if (!serverName)
 
-      setDiscoveryStatus("loading")
+        setDiscoveryStatus("loading")
       try {
         // Try to fetch well-known data
         const wellKnownUrl = `https://${serverName}/.well-known/matrix/client`
@@ -74,7 +70,7 @@ export function MatrixLoginForm({ matrixId, onSuccess, onCancel }: MatrixLoginFo
     }
 
     discoverHomeserver()
-  }, [serverName])
+  }, [matrixId])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
