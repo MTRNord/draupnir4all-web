@@ -1,4 +1,3 @@
-"use client";
 import Link from "next/link"
 import { Shield, Users, BarChart, Settings, AlertTriangle, CheckCircle, Ban, Eye, LogIn, Menu } from "lucide-react"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -6,13 +5,15 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/s
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { useSession } from "@/contexts/session-context"
+import { cookies } from "next/headers"
 
 export const experimental_ppr = true
 const d4all_support_url = process.env.NEXT_PUBLIC_D4ALL_SUPPORT_URL || "#"
 
-export default function Home() {
-  const { user } = useSession()
+export default async function Home() {
+  // Get session cookie if available
+  const cookieStore = await cookies()
+  const sessionCookie = cookieStore.get("session")
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
@@ -41,7 +42,7 @@ export default function Home() {
           </nav>
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-4">
-              {user ? (
+              {sessionCookie ? (
                 <Link href="/dashboard">
                   <Button className="bg-purple-600 text-white hover:bg-purple-700">Dashboard</Button>
                 </Link>
