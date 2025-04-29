@@ -166,6 +166,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             const userData = await response.json();
             setUser(userData);
+
+            // Persist access token and expiration in sessionStorage
+            sessionStorage.setItem("accessToken", accessToken);
+            sessionStorage.setItem("openidExpiration", expires_in.toString());
+
+
             router.replace("/dashboard");
         } catch (error) {
             console.error("Login failed:", error);
@@ -203,6 +209,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             }
             const userData = await response.json();
             setUser(userData);
+
+            // Persist access token and expiration in sessionStorage
+            sessionStorage.setItem("accessToken", accessToken);
+            sessionStorage.setItem("openidExpiration", expires_in.toString());
+
+
             router.replace("/dashboard");
         } catch (error) {
             console.error("Login failed:", error);
@@ -222,6 +234,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             setUser(undefined);
             setAccessToken(undefined);
+            setOpenIDExpiration(undefined);
+
+            // Clear sessionStorage
+            sessionStorage.removeItem("accessToken");
+            sessionStorage.removeItem("openidExpiration");
+
             router.push("/");
         } catch (error) {
             console.error("Logout failed:", error);
