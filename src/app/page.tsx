@@ -13,7 +13,7 @@ const d4all_support_url = process.env.NEXT_PUBLIC_D4ALL_SUPPORT_URL || "#"
 export default async function Home() {
   // Get session cookie if available
   const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get("session")
+  const sessionCookie = cookieStore.has("session")
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
