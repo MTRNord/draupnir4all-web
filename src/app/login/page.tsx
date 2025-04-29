@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useSession } from "@/contexts/session-context"
 import { redirect } from "next/navigation"
+import RedirectionPageClient from "@/components/redirect-workaround"
 
 export default function LoginPage() {
   const [matrixId, setMatrixId] = useState("")
@@ -61,6 +62,10 @@ export default function LoginPage() {
       setStep("error")
     }
   }, [login, matrixId, password])
+
+  if (user) {
+    return <RedirectionPageClient redirectUrl="/dashboard" replace />
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">

@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { generateOpenIDToken, login as realLogin, logout as realLogout } from "@/lib/clientSideAuth";
 import { User } from "@/lib/auth";
 
@@ -27,7 +26,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const [discoveryStatus, setDiscoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [openidExpiration, setOpenIDExpiration] = useState<number | undefined>();
-    const router = useRouter();
 
     // Restore session from cookies on initial load
     useEffect(() => {
@@ -170,9 +168,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             // Persist access token and expiration in sessionStorage
             sessionStorage.setItem("accessToken", accessToken);
             sessionStorage.setItem("openidExpiration", expires_in.toString());
-
-
-            router.replace("/dashboard");
         } catch (error) {
             console.error("Login failed:", error);
             throw error;
@@ -213,9 +208,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             // Persist access token and expiration in sessionStorage
             sessionStorage.setItem("accessToken", accessToken);
             sessionStorage.setItem("openidExpiration", expires_in.toString());
-
-
-            router.replace("/dashboard");
         } catch (error) {
             console.error("Login failed:", error);
             throw error;
@@ -239,8 +231,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             // Clear sessionStorage
             sessionStorage.removeItem("accessToken");
             sessionStorage.removeItem("openidExpiration");
-
-            router.push("/");
         } catch (error) {
             console.error("Logout failed:", error);
         }
