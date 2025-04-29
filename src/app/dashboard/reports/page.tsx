@@ -18,23 +18,13 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { mockReports, mockTeams } from "../mockData";
-import { redirect, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import TabNavigation from "../../../components/dashboard/tab-navigation"
-import { useSession } from "@/contexts/session-context"
 
 export default function ReportsPage() {
     const searchParams = useSearchParams()
     const teamIdParam = searchParams.get("team")
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
-    const { user } = useSession()
-
-
-    useEffect(() => {
-        // Check if the user is logged in
-        if (!user) {
-            redirect("/login")
-        }
-    }, [user])
 
     // Update selected team when URL param changes
     useEffect(() => {

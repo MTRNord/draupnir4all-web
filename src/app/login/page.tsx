@@ -54,12 +54,13 @@ export default function LoginPage() {
     setErrorMessage("")
 
     try {
-      await login(matrixId)
+      await login(matrixId, password)
     } catch (err) {
       console.error("Login failed:", err)
       setErrorMessage("Login failed. Please check your credentials.")
+      setStep("error")
     }
-  }, [login, matrixId])
+  }, [login, matrixId, password])
 
   return (
     <div className="flex min-h-screen flex-col bg-black text-white">
@@ -162,7 +163,7 @@ export default function LoginPage() {
                       setMatrixId("")
                       setPassword("")
                     }}
-                    disabled={isLoading}
+                    disabled={isLoading || loginLoading}
                   >
                     Cancel
                   </Button>
@@ -174,7 +175,7 @@ export default function LoginPage() {
               </form>
             )}
 
-            {(isLoading || loginLoading) && (
+            {((isLoading || loginLoading) && discoveryStatus !== "loading") && (
               <div className="flex flex-col items-center justify-center py-6 space-y-4">
                 <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
                 <p className="text-gray-300">Logging in...</p>
@@ -182,6 +183,12 @@ export default function LoginPage() {
               </div>
             )}
 
+            {((isLoading || loginLoading) && discoveryStatus === "loading") && (
+              <div className="flex flex-col items-center justify-center py-6 space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin text-purple-400" />
+                <p className="text-gray-300">Discovering the Homeserver URL...</p>
+              </div>
+            )}
             {step === "error" && (
               <div className="rounded-md bg-red-900/20 border border-red-800 p-4 text-center">
                 <p className="text-red-300 font-medium">Login Failed</p>
@@ -189,7 +196,7 @@ export default function LoginPage() {
                 <Button
                   variant="outline"
                   className="mt-4 border-red-500 text-red-400 hover:bg-red-950 hover:text-red-300"
-                  onClick={() => setStep("initial")}
+                  onClick={() => { setStep("initial"); setMatrixId(""); setPassword(""); }}
                 >
                   Try Again
                 </Button>
@@ -202,7 +209,7 @@ export default function LoginPage() {
                 <Button
                   className="w-full bg-purple-600 text-white hover:bg-purple-700"
                   onClick={startMatrixAuth}
-                  disabled={!matrixId}
+                  disabled={!matrixId || isLoading || loginLoading}
                 >
                   Continue
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -218,6 +225,6 @@ export default function LoginPage() {
           </CardFooter>
         </Card>
       </main>
-    </div>
+    </div >
   )
 }

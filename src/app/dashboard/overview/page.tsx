@@ -5,21 +5,12 @@ import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
 import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
-import { useSession } from "@/contexts/session-context"
-import { redirect, useSearchParams } from "next/navigation"
-import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
 export default function OverviewPage() {
     const searchParams = useSearchParams()
-    const { user } = useSession()
     const teamIdParam = searchParams.get("team");
 
-    useEffect(() => {
-        // Check if the user is logged in
-        if (!user) {
-            redirect("/login")
-        }
-    }, [user])
 
     const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
     const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);

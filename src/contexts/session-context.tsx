@@ -1,196 +1,246 @@
-"use client"
+"use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react"
-import { useRouter } from "next/navigation"
-import { createSession, deleteSession, getSessionUser, User } from "@/lib/auth"
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import { generateOpenIDToken, login as realLogin, logout as realLogout } from "@/lib/clientSideAuth";
+import { User } from "@/lib/auth";
 
 type SessionContextType = {
-    user?: User
-    isLoading: boolean
-    isAuthenticated: boolean
-    discoveryStatus: "idle" | "loading" | "success" | "error"
-    homeserverUrl?: string
-    token?: string
-    login: (matrixId: string) => Promise<void>
-    register: (matrixId: string) => Promise<void>
-    logout: () => Promise<void>
-    discoverHomeserver: (matrixId: string) => Promise<void>
-}
+    user?: User;
+    isLoading: boolean;
+    isAuthenticated: boolean;
+    discoveryStatus: "idle" | "loading" | "success" | "error";
+    homeserverUrl?: string;
+    login: (matrixId: string, password: string) => Promise<void>;
+    register: (matrixId: string, password: string) => Promise<void>;
+    logout: () => Promise<void>;
+    discoverHomeserver: (matrixId: string) => Promise<void>;
+    fetchWithTokenRefresh: (url: string, options?: RequestInit) => Promise<Response>;
+};
 
-interface WellKnownResponse {
-    "m.homeserver"?: {
-        base_url: string
-    }
-}
-
-const SessionContext = createContext<SessionContextType | undefined>(undefined)
+const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | undefined>(getSessionUser())
-    const [isLoading, setIsLoading] = useState(false)
-    const [homeserverUrl, setHomeserverUrl] = useState<string | undefined>()
-    const [discoveryStatus, setDiscoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
-    const [token, setToken] = useState<string | undefined>()
-    const router = useRouter()
+    const [user, setUser] = useState<User | undefined>();
+    const [isLoading, setIsLoading] = useState(false);
+    const [homeserverUrl, setHomeserverUrl] = useState<string | undefined>();
+    const [discoveryStatus, setDiscoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+    const [accessToken, setAccessToken] = useState<string | undefined>();
+    const [openidExpiration, setOpenIDExpiration] = useState<number | undefined>();
+    const router = useRouter();
 
-
-    const discoverHomeserver = async (matrixId: string) => {
-        if (matrixId === "") {
-            return
-        }
-        setDiscoveryStatus("loading")
-        if (!matrixId.includes(":")) {
-            setDiscoveryStatus("error")
-            throw new Error("Invalid Matrix ID format. Please include a domain (e.g., @user:domain).")
-        }
-        // Extract username and server from Matrix ID
-        const serverName = matrixId.split(":").pop()
-        try {
-            // Try to fetch well-known data
-            const wellKnownUrl = `https://${serverName}/.well-known/matrix/client`
-
+    // Restore session from cookies on initial load
+    useEffect(() => {
+        const fetchSession = async () => {
             try {
-                const response = await fetch(wellKnownUrl)
+                const response = await fetch("/api/session");
                 if (response.ok) {
-                    const data = (await response.json()) as WellKnownResponse
-                    if (data["m.homeserver"]?.base_url) {
-                        setDiscoveryStatus("success")
-                        setHomeserverUrl(data["m.homeserver"].base_url)
-                        return;
-                    }
+                    const userData = await response.json();
+                    setUser(userData);
                 }
-            } catch (e) {
-                console.warn("Well-known discovery failed, falling back to direct server", e)
+            } catch (error) {
+                console.error("Failed to restore session:", error);
+            } finally {
+                setIsLoading(false);
             }
+        };
 
-            // Fallback to direct server
-            setDiscoveryStatus("success")
-            setHomeserverUrl(`https://${serverName}`)
-        } catch (err) {
-            setDiscoveryStatus("error")
-            setHomeserverUrl(undefined)
-            console.error("Homeserver discovery failed:", err)
-            throw new Error("Could not discover Matrix homeserver. Please check your Matrix ID.")
+        fetchSession();
+    }, []);
+
+    const refreshOpenIDToken = useCallback(async () => {
+        if (!homeserverUrl || !accessToken || !user) {
+            throw new Error("Missing required information to refresh OpenID token.");
         }
-    }
 
-    const login = async (matrixId: string) => {
-        setIsLoading(true)
         try {
-            // Step 1: Authenticate with the Matrix homeserver
-            console.log(`Authenticating with ${homeserverUrl}`)
+            const openidToken = await generateOpenIDToken(homeserverUrl, user.matrixId, accessToken);
 
-            // In a real implementation:
-            // const loginResponse = await fetch(`${homeserverUrl}/_matrix/client/v3/login`, {
-            //   method: 'POST',
-            //   headers: { 'Content-Type': 'application/json' },
-            //   body: JSON.stringify({
-            //     type: 'm.login.password',
-            //     identifier: {
-            //       type: 'm.id.user',
-            //       user: username
-            //     },
-            //     password
-            //   })
-            // })
-
-            // const loginData = await loginResponse.json()
-            // if (!loginData.access_token) {
-            //   throw new Error(loginData.error || 'Login failed')
-            // }
-
-            // Simulate login delay
-            await new Promise((resolve) => setTimeout(resolve, 1000))
-
-            // Simulate access token
-            // TODO: Fix me
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const mockAccessToken = "syt_" + Math.random().toString(36).substring(2, 15)
-
-            // Step 2: Request an OpenID token
-            console.log(`Requesting OpenID token for ${matrixId}`)
-
-            // In a real implementation:
-            // const openIdResponse = await fetch(
-            //   `${homeserverUrl}/_matrix/client/v3/user/${encodeURIComponent(matrixId)}/openid/request_token`,
-            //   {
-            //     method: 'POST',
-            //     headers: {
-            //       'Content-Type': 'application/json',
-            //       'Authorization': `Bearer ${loginData.access_token}`
-            //     },
-            //     body: JSON.stringify({})
-            //   }
-            // )
-
-            // const openIdData = await openIdResponse.json()
-            // if (!openIdData.access_token) {
-            //   throw new Error(openIdData.error || 'Failed to get OpenID token')
-            // }
-
-            // Simulate OpenID token request delay
-            await new Promise((resolve) => setTimeout(resolve, 500))
-
-            // Simulate OpenID token
-            const mockOpenIdToken =
-                "ey" +
-                Math.random().toString(36).substring(2, 15) +
-                "." +
-                Math.random().toString(36).substring(2, 15) +
-                "." +
-                Math.random().toString(36).substring(2, 15)
-
-            // Save the OpenID token to the session
-            setToken(mockOpenIdToken)
-            createSession({
-                matrixId,
-                displayName: matrixId.split(":")[0].substring(1),
-                id: "user_" + Math.random().toString(36).substring(2, 9),
-                isAdmin: false,
-            })
-            router.replace("/dashboard")
-            return;
-        } catch (err) {
-            console.error("Matrix login failed:", err)
-            throw err instanceof Error ? err.message : "Authentication failed"
-        } finally {
-            setIsLoading(false)
-        }
-    }
-
-    const register = async (matrixId: string) => {
-        setIsLoading(true)
-        try {
-            const response = await fetch("/api/auth/register", {
+            // Update the session cookie with the new OpenID token
+            const response = await fetch("/api/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ matrixId }),
-            })
+                body: JSON.stringify({ openidToken }),
+            });
 
             if (!response.ok) {
-                throw new Error("Registration failed")
+                throw new Error("Failed to update session with new OpenID token.");
             }
 
-            const data = await response.json()
-            setUser(data.user)
-            router.replace("/dashboard")
+            const userData = await response.json();
+            setUser(userData);
         } catch (error) {
-            console.error("Registration failed:", error)
-            throw error
-        } finally {
-            setIsLoading(false)
+            console.error("Failed to refresh OpenID token:", error);
+            throw error;
         }
-    }
+    }, [homeserverUrl, accessToken, user]);
+
+    // Automatically refresh OpenID token before it expires
+    useEffect(() => {
+        if (openidExpiration) {
+            const now = Date.now();
+            const refreshTime = openidExpiration - 60 * 1000; // Refresh 1 minute before expiration
+
+            if (refreshTime > now) {
+                const timeout = setTimeout(() => {
+                    refreshOpenIDToken().catch((err) => {
+                        console.error("Failed to refresh OpenID token:", err);
+                    });
+                }, refreshTime - now);
+
+                return () => clearTimeout(timeout);
+            }
+        }
+    }, [openidExpiration, refreshOpenIDToken]);
+
+    const discoverHomeserver = async (matrixId: string) => {
+        setDiscoveryStatus("loading");
+        if (!matrixId.includes(":")) {
+            setDiscoveryStatus("error");
+            throw new Error("Invalid Matrix ID format. Please include a domain (e.g., @user:domain).");
+        }
+
+        const serverName = matrixId.split(":").pop();
+
+        try {
+            const url = new URL("/.well-known/matrix/client", `https://${serverName}`);
+            const response = await fetch(url);
+            if (response.ok) {
+                // Check if the response is empty
+                if (!response.body) {
+                    setHomeserverUrl(`https://${serverName}`);
+                    setDiscoveryStatus("success");
+                    return;
+                }
+
+                const data = await response.json();
+                if (data["m.homeserver"]?.base_url) {
+                    // Check if the base_url is a valid URL by checking /_matrix/client/versions on the endpoint
+                    const url = new URL("/_matrix/client/versions", data["m.homeserver"].base_url)
+                    const versionsResponse = await fetch(url);
+                    console.log("Versions response:", versionsResponse.status);
+                    if (versionsResponse.ok) {
+                        setHomeserverUrl(data["m.homeserver"].base_url);
+                        setDiscoveryStatus("success");
+                        return;
+                    } else {
+                        setDiscoveryStatus("error");
+                        throw new Error("Homeserver did not respond successfully to versions request.");
+                    }
+                }
+            }
+            setHomeserverUrl(`https://${serverName}`);
+            setDiscoveryStatus("success");
+        } catch (error: unknown) {
+            console.warn("Failed to discover homeserver:", error);
+            setHomeserverUrl(`https://${serverName}`);
+            setDiscoveryStatus("success");
+        }
+    };
+
+    const login = async (matrixId: string, password: string) => {
+        setIsLoading(true);
+        if (!homeserverUrl) {
+            throw new Error("Homeserver URL is not set. Please discover your homeserver first.");
+        }
+
+        try {
+            // Step 1: Login to Matrix and get access token
+            const accessToken = await realLogin(homeserverUrl, matrixId, password);
+            setAccessToken(accessToken);
+
+            // Step 2: Generate OpenID token
+            const { access_token: openidToken, expires_in } = await generateOpenIDToken(homeserverUrl, matrixId, accessToken);
+            setOpenIDExpiration(expires_in);
+
+            // Step 3: Send OpenID token to the server for validation and session creation
+            const response = await fetch("/api/session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ openidToken }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create session on the server.");
+            }
+
+            const userData = await response.json();
+            setUser(userData);
+            router.replace("/dashboard");
+        } catch (error) {
+            console.error("Login failed:", error);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const register = async (matrixId: string, password: string) => {
+        setIsLoading(true);
+        if (!homeserverUrl) {
+            throw new Error("Homeserver URL is not set. Please discover your homeserver first.");
+        }
+
+        try {
+
+            // Step 1: Login to Matrix and get access token
+            const accessToken = await realLogin(homeserverUrl, matrixId, password);
+            setAccessToken(accessToken);
+
+            // Step 2: Generate OpenID token
+            const { access_token: openidToken, expires_in } = await generateOpenIDToken(homeserverUrl, matrixId, accessToken);
+            setOpenIDExpiration(expires_in);
+
+            // Step 3: Send OpenID token to the server for validation and session creation
+            const response = await fetch("/api/session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ openidToken }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to create session on the server.");
+            }
+            const userData = await response.json();
+            setUser(userData);
+            router.replace("/dashboard");
+        } catch (error) {
+            console.error("Login failed:", error);
+            throw error;
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const logout = async () => {
         try {
-            setUser(undefined)
-            deleteSession()
-            router.push("/")
+            await fetch("/api/session", { method: "DELETE" });
+
+            if (homeserverUrl && accessToken) {
+                await realLogout(homeserverUrl, accessToken);
+            }
+
+            setUser(undefined);
+            setAccessToken(undefined);
+            router.push("/");
         } catch (error) {
-            console.error("Logout failed:", error)
+            console.error("Logout failed:", error);
         }
-    }
+    };
+
+    const fetchWithTokenRefresh = async (url: string, options: RequestInit = {}) => {
+        const response = await fetch(url, options);
+
+        if (response.status === 401) {
+            // Token expired, refresh it
+            await refreshOpenIDToken();
+
+            // Retry the request
+            return fetch(url, options);
+        }
+
+        return response;
+    };
 
     return (
         <SessionContext.Provider
@@ -200,22 +250,22 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 homeserverUrl,
                 discoveryStatus,
                 isAuthenticated: !!user,
-                token,
                 login,
                 register,
                 logout,
                 discoverHomeserver,
+                fetchWithTokenRefresh,
             }}
         >
             {children}
         </SessionContext.Provider>
-    )
+    );
 }
 
 export function useSession() {
-    const context = useContext(SessionContext)
+    const context = useContext(SessionContext);
     if (context === undefined) {
-        throw new Error("useSession must be used within a SessionProvider")
+        throw new Error("useSession must be used within a SessionProvider");
     }
-    return context
+    return context;
 }
