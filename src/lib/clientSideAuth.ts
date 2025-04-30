@@ -33,6 +33,9 @@ interface OpenIDTokenResponse {
 }
 
 export async function generateOpenIDToken(homeserverUrl: string, username: string, accessToken: string): Promise<OpenIDTokenResponse> {
+    if (!accessToken) {
+        throw new Error('Access token is required');
+    }
     const url = new URL("/_matrix/client/v3/user/" + encodeURIComponent(username) + "/openid/request_token", homeserverUrl);
     const response = await fetch(url, {
         method: 'POST',

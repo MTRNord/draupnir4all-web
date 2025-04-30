@@ -20,10 +20,11 @@ import {
 import { mockReports, mockTeams } from "../mockData";
 import { useSearchParams } from "next/navigation"
 import TabNavigation from "../../../components/dashboard/tab-navigation"
+import LayoutWrapper from "@/components/dashboard/layoutWrapper"
 
 export default function ReportsPage() {
     const searchParams = useSearchParams()
-    const teamIdParam = searchParams.get("team")
+    const teamIdParam = searchParams.get("team") || undefined
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
 
     // Update selected team when URL param changes
@@ -47,7 +48,7 @@ export default function ReportsPage() {
                 : reports.filter((r) => r.type === filter)
 
     return (
-        <>
+        <LayoutWrapper activeTab="reports" teamIdParam={teamIdParam}>
             <TabNavigation selectedTeam={selectedTeam} currentTab="reports" />
             <Card className="border-gray-800 bg-gray-950">
                 <CardHeader className="pb-2">
@@ -272,6 +273,6 @@ export default function ReportsPage() {
                     </div>
                 </CardContent>
             </Card>
-        </>
+        </LayoutWrapper>
     )
 }

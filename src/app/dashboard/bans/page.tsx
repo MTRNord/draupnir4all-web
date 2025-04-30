@@ -10,11 +10,12 @@ import { EBanTypes, mockPolicyLists, mockTeams, } from "../mockData";
 import AddBan from "../../../components/modals/add-ban";
 import { useSearchParams } from "next/navigation";
 import TabNavigation from "../../../components/dashboard/tab-navigation";
+import LayoutWrapper from "@/components/dashboard/layoutWrapper";
 
 
 export default function Bans() {
     const searchParams = useSearchParams()
-    const teamIdParam = searchParams.get("team")
+    const teamIdParam = searchParams.get("team") || undefined
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
     const [searchTerm, setSearchTerm] = useState<string>("");
 
@@ -45,7 +46,7 @@ export default function Bans() {
     });
 
     return (
-        <>
+        <LayoutWrapper activeTab="bans" teamIdParam={teamIdParam}>
             <TabNavigation selectedTeam={selectedTeam} currentTab="bans" />
 
             <Card className="border-gray-800 bg-gray-950">
@@ -156,6 +157,6 @@ export default function Bans() {
                     </div>
                 </CardContent>
             </Card>
-        </>
-    );
+        </LayoutWrapper>
+    )
 }

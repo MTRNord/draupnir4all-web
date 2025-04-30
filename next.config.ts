@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   experimental: {
     ppr: 'incremental',
     useCache: true,
+    dynamicIO: true,
   },
   output: 'standalone'
 };

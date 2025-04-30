@@ -27,25 +27,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const [accessToken, setAccessToken] = useState<string | undefined>();
     const [openidExpiration, setOpenIDExpiration] = useState<number | undefined>();
 
-    // Restore session from cookies on initial load
-    useEffect(() => {
-        const fetchSession = async () => {
-            try {
-                const response = await fetch("/api/session");
-                if (response.ok) {
-                    const userData = await response.json();
-                    setUser(userData);
-                }
-            } catch (error) {
-                console.error("Failed to restore session:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchSession();
-    }, []);
-
     const refreshOpenIDToken = useCallback(async () => {
         if (!homeserverUrl || !accessToken || !user) {
             throw new Error("Missing required information to refresh OpenID token.");
@@ -58,7 +39,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             const response = await fetch("/api/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ openidToken }),
+                body: JSON.stringify({ openidToken, homeserverUrl, matrixId: user.matrixId }),
             });
 
             if (!response.ok) {
@@ -72,6 +53,43 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             throw error;
         }
     }, [homeserverUrl, accessToken, user]);
+
+    // Restore session from cookies on initial load
+    useEffect(() => {
+        const fetchSession = async () => {
+            try {
+                if (openidExpiration) {
+                    const now = Date.now();
+                    const refreshTime = openidExpiration - 60 * 1000; // Refresh 1 minute before expiration
+
+                    if (refreshTime > now) {
+                        const timeout = setTimeout(() => {
+                            refreshOpenIDToken().catch((err) => {
+                                console.error("Failed to refresh OpenID token:", err);
+                            });
+                        }, refreshTime - now);
+
+                        return () => clearTimeout(timeout);
+                    }
+                }
+                const response = await fetch("/api/session");
+                if (response.ok) {
+                    const userData: User = await response.json();
+                    setUser(userData);
+                    setAccessToken(userData.token);
+                    setHomeserverUrl(userData.homeserverUrl);
+                }
+            } catch (error) {
+                console.error("Failed to restore session:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchSession();
+    }, [openidExpiration, refreshOpenIDToken]);
+
+
 
     // Automatically refresh OpenID token before it expires
     useEffect(() => {
@@ -155,7 +173,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             const response = await fetch("/api/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ openidToken }),
+                body: JSON.stringify({ openidToken, homeserverUrl, matrixId }),
             });
 
             if (!response.ok) {
@@ -196,7 +214,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             const response = await fetch("/api/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ openidToken }),
+                body: JSON.stringify({ openidToken, homeserverUrl, matrixId }),
             });
 
             if (!response.ok) {

@@ -7,6 +7,7 @@ export type User = {
     avatarUrl?: string
     isAdmin: boolean
     token: string
+    homeserverUrl: string
 }
 
 export function createSession(user: User) {

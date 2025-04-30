@@ -1,23 +1,33 @@
-"use client"
 import { AlertTriangle, Ban, CheckCircle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
 import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
-import { useSearchParams } from "next/navigation"
+import LayoutWrapper from "@/components/dashboard/layoutWrapper"
+import { listBots } from "@/lib/api"
+import { cookies } from "next/headers"
+import { User } from "@/lib/auth"
 
-export default function OverviewPage() {
-    const searchParams = useSearchParams()
-    const teamIdParam = searchParams.get("team");
-
+export default async function OverviewPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+    const teamIdParam = (await searchParams).team as string | undefined;
+    const cookieStore = await cookies()
+    const session: User = JSON.parse(cookieStore.get("session")?.value || "{}")
+    if (!session.token) {
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+    const listData = await listBots(session.token);
 
     const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
     const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);
     const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id);
 
     return (
-        <>
+        <LayoutWrapper listData={listData} activeTab="overview" teamIdParam={teamIdParam}>
             <TabNavigation selectedTeam={selectedTeam} currentTab="overview" />
             <div className="space-y-8">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -125,6 +135,6 @@ export default function OverviewPage() {
                     </Card>
                 </div>
             </div>
-        </>
+        </LayoutWrapper>
     )
 }

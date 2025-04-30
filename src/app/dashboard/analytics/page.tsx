@@ -16,6 +16,7 @@ import { PlotlyChart } from "@/components/analytics/plotly-chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import InfoCardWithTrend from "@/components/analytics/info-card-with-trend";
+import LayoutWrapper from "@/components/dashboard/layoutWrapper";
 
 // Mock data for charts
 const roomActivityData: RoomActivityData[] = [
@@ -61,7 +62,7 @@ const monthlyActivityData: MonthlyActivityData[] = [
 
 export default function AnalyticsDashboard() {
     const searchParams = useSearchParams()
-    const teamIdParam = searchParams.get("team")
+    const teamIdParam = searchParams.get("team") || undefined
     const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
 
 
@@ -90,7 +91,7 @@ export default function AnalyticsDashboard() {
     const reportChangePercent = 12
 
     return (
-        <>
+        <LayoutWrapper activeTab="analytics" teamIdParam={teamIdParam}>
             <TabNavigation selectedTeam={selectedTeam} currentTab="analytics" />
             <div className="space-y-4">
                 <div className="flex items-center  justify-end">
@@ -285,6 +286,6 @@ export default function AnalyticsDashboard() {
                     </CardContent>
                 </Card>
             </div>
-        </>
+        </LayoutWrapper>
     )
 }
