@@ -29,7 +29,10 @@ export default async function Bans({
     }
 
     const selectedBot = listData.bots.find((team) => team.id === teamIdParam) ?? listData.bots[0];
-
+    if (!selectedBot) {
+        // TODO: Redirect to register page?
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
 
     // Filter policy lists based on selected team
     // TODO: Fetch from API

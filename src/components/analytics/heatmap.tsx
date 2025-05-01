@@ -2,7 +2,7 @@
 
 import { Calendar } from "lucide-react"
 
-interface HeatmapDay {
+export interface HeatmapDay {
   date: string
   count: number
 }

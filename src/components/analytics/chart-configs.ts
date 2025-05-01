@@ -1,7 +1,8 @@
 import type { Data, Layout } from "plotly.js"
+import { HeatmapDay } from "./heatmap"
 
 // Helper function to generate heatmap data
-export const generateHeatmapData = (intensity = 1, seed = 42) => {
+export const generateHeatmapData = (intensity = 1, seed = 42): HeatmapDay[] => {
     const today = new Date()
     const data = []
 
@@ -15,7 +16,7 @@ export const generateHeatmapData = (intensity = 1, seed = 42) => {
         const value = Math.floor(Math.sin(dayOfYear * 0.1 + seed) * Math.cos(date.getMonth() * 0.3 + seed) * 10 * intensity)
 
         data.push({
-            date: date.toISOString().split("T")[0],
+            date: date.toISOString().split("T")[0] as string,
             count: Math.max(0, value),
         })
     }

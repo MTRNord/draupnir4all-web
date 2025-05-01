@@ -16,7 +16,13 @@ export default function BansList({ policyLists }: BanListProps) {
     const [selectedPolicyList, setSelectedPolicyList] = useState("global")
     const [filter, setFilter] = useState("all")
     const [searchTerm, setSearchTerm] = useState("")
-    const selectedList = policyLists.find((list) => list.id === selectedPolicyList) || policyLists[0] || { entries: [] }
+    const selectedList = policyLists.find((list) => list.id === selectedPolicyList) ?? policyLists[0]
+
+    if (!selectedList) {
+        // TODO: Error handling
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+
     const entries = selectedList.entries.filter((entry) => {
         if (filter === "all") return true;
         if (filter === "users") return entry.type === EBanTypes.User;

@@ -23,8 +23,12 @@ export default async function ProtectedRoomsSettingsPage({
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
 
-    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) || listData.bots[0];
-
+    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) ?? listData.bots[0];
+    if (!selectedBot) {
+        // TODO: Redirect to register page?
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+    
     return (
         <SettingsLayout currentTab={"rooms"} listData={listData} selectedBot={selectedBot} teamIdParam={teamIdParam}>
             <div className="flex items-center justify-between">
