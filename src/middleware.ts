@@ -3,10 +3,11 @@ import type { NextRequest } from "next/server";
 import { User } from "./lib/auth";
 
 export function middleware(req: NextRequest) {
-    const session = req.cookies.get("session");
+    const session = req.cookies.get("d4all_session");
 
     // If not root url check if the session cookie is set, and check if the session expired. If it did redirect to /refresh
     if (req.nextUrl.pathname !== "/" && session) {
+        console.log("Session cookie found:", session.value);
         const sessionData: User = JSON.parse(session.value);
         const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
 

@@ -26,12 +26,12 @@ export async function POST(req: Request) {
     };
 
     const response = NextResponse.json(user);
-    response.cookies.set("session", JSON.stringify(user), { httpOnly: true, path: "/" });
+    response.cookies.set("d4all_session", JSON.stringify(user), { httpOnly: true, path: "/" });
     return response;
 }
 
 export async function GET() {
-    const session = (await cookies()).get("session")?.value;
+    const session = (await cookies()).get("d4all_session")?.value;
 
     if (!session) {
         return NextResponse.json({ error: "No active session" }, { status: 401 });
@@ -43,7 +43,7 @@ export async function GET() {
 export async function DELETE(req: Request) {
     const url = new URL(req.url);
     const response = NextResponse.redirect(url.origin);
-    response.cookies.set("session", "", { httpOnly: true, path: "/", maxAge: 0 });
+    response.cookies.set("d4all_session", "", { httpOnly: true, path: "/", maxAge: 0 });
 
     return response;
 }

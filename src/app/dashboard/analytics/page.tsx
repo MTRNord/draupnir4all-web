@@ -66,7 +66,7 @@ export default async function AnalyticsDashboard({
     const timeRange = (params.timeRange as string | undefined) ?? "year"
     const heatmapType = (params.heatmapType as string | undefined) ?? "reports"
     const cookieStore = await cookies()
-    const session: User = JSON.parse(cookieStore.get("session")?.value || "{}")
+    const session: User = JSON.parse(cookieStore.get("d4all_session")?.value ?? "{}")
     if (!session.token) {
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }

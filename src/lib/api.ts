@@ -1,4 +1,7 @@
 'use server'
+import createClient from "openapi-fetch";
+import type { paths } from "./api/v1";
+import { cacheLife } from "next/dist/server/use-cache/cache-life";
 
 export interface DraupnirBot {
     id: string,
@@ -16,35 +19,25 @@ export interface ListResponse {
     bots: DraupnirBot[]
 }
 
+const client = createClient<paths>({ baseUrl: `${process.env.NEXT_PUBLIC_D4ALL_INSTANCE_ADDRESS}/api` });
+
 export async function listBots(mxid: string, token: string): Promise<ListResponse | undefined> {
+    'use cache'
+    cacheLife("minutes")
+
     console.log("Fetching teams from Draupnir4All instance for user:", mxid);
-    const url = new URL("/api/1/appservice/list", process.env.NEXT_PUBLIC_D4ALL_INSTANCE_ADDRESS);
-    const res = await fetch(url, {
-        method: "GET",
-        headers: {
-            "X-Draupnir-UserID": mxid,
-            Authorization: `Bearer ${token}`,
-            "Accept": "application/json",
-        },
-    });
-    if (!res.ok) {
-        const resp: {
-            error?: string;
-            errcode?: string;
-        } = await res.json();
-        if (resp.error) {
-            console.error("Failed to fetch teams:", res.status, resp.errcode, resp.error);
-        } else {
-            console.error("Failed to fetch teams:", res.status, res.statusText);
+
+    const { data, error } = await client.GET("/1/appservice/list", {
+        params: {
+            header: {
+                "X-Draupnir-UserID": mxid,
+                Authorization: `Bearer ${token}`,
+            }
         }
-        // TODO: Handle error
-        return undefined;
+    });
+    if (error) {
+        console.error("Failed to fetch teams:", error);
+        throw new Error("Failed to fetch teams");
     }
-    const data = await res.json();
-    if (!data.bots) {
-        console.error("Invalid response:", data);
-        // Handle error
-        return undefined;
-    }
-    return data as ListResponse;
+    return data;
 }

@@ -18,7 +18,7 @@ export default async function Bans({
     const teamIdParam = params.team as string | undefined;
 
     const cookieStore = await cookies()
-    const session: User = JSON.parse(cookieStore.get("session")?.value || "{}")
+    const session: User = JSON.parse(cookieStore.get("d4all_session")?.value || "{}")
     if (!session.token) {
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
@@ -28,7 +28,7 @@ export default async function Bans({
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
 
-    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) || listData.bots[0];
+    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) ?? listData.bots[0];
 
 
     // Filter policy lists based on selected team
