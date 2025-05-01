@@ -2,8 +2,7 @@ import LayoutWrapper from "@/components/dashboard/layoutWrapper"
 import TabNavigation from "@/components/dashboard/tab-navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ListResponse } from "@/lib/api";
-import { Team } from "../mockData";
+import { DraupnirBot, ListResponse } from "@/lib/api";
 import Link from "next/link";
 
 export default function SettingsLayout({
@@ -11,17 +10,17 @@ export default function SettingsLayout({
     currentTab,
     listData,
     teamIdParam,
-    selectedTeam,
+    selectedBot,
 }: {
     children: React.ReactNode;
     currentTab: string;
     listData?: ListResponse;
     teamIdParam?: string;
-    selectedTeam: Team;
+    selectedBot: DraupnirBot;
 }) {
     return (
         <LayoutWrapper listData={listData} activeTab="settings" teamIdParam={teamIdParam}>
-            <TabNavigation selectedTeam={selectedTeam} currentTab="settings" />
+            <TabNavigation selectedBot={selectedBot} currentTab="settings" />
             <Card className="border-gray-800 bg-gray-950">
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -35,13 +34,13 @@ export default function SettingsLayout({
                     <Tabs defaultValue={currentTab} className="space-y-4">
                         <TabsList className="bg-gray-900">
                             <TabsTrigger value="members" asChild>
-                                <Link href={`/dashboard/settings/members?team=${selectedTeam.id}`}>Team Members</Link>
+                                <Link href={`/dashboard/settings/members?team=${selectedBot.id}`}>Team Members</Link>
                             </TabsTrigger>
                             <TabsTrigger value="rooms" asChild>
-                                <Link href={`/dashboard/settings/protectedRooms?team=${selectedTeam.id}`}>Protected Rooms</Link>
+                                <Link href={`/dashboard/settings/protectedRooms?team=${selectedBot.id}`}>Protected Rooms</Link>
                             </TabsTrigger>
                             <TabsTrigger value="settings" asChild>
-                                <Link href={`/dashboard/settings/bot?team=${selectedTeam.id}`}>Bot Settings</Link>
+                                <Link href={`/dashboard/settings/bot?team=${selectedBot.id}`}>Bot Settings</Link>
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>

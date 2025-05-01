@@ -1,7 +1,6 @@
 import { listBots } from "@/lib/api";
 import { User } from "@/lib/auth";
 import { cookies } from "next/headers";
-import { mockTeams } from "../../mockData";
 import SettingsLayout from "../settingsLayout";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -20,14 +19,19 @@ export default async function BotSettingsPage({
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
     const listData = await listBots(session.matrixId, session.token);
-    const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
+
+    if (!listData) {
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+
+    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) || listData.bots[0];
 
     return (
-        <SettingsLayout currentTab={"settings"} listData={listData} selectedTeam={selectedTeam} teamIdParam={teamIdParam}>
+        <SettingsLayout currentTab={"settings"} listData={listData} selectedBot={selectedBot} teamIdParam={teamIdParam}>
             <div className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="bot-name">Bot Name</Label>
-                    <Input id="bot-name" defaultValue={selectedTeam.name} className="bg-gray-900 border-gray-800" />
+                    <Input id="bot-name" defaultValue={selectedBot.displayName} className="bg-gray-900 border-gray-800" />
                 </div>
                 <div className="pt-4 flex justify-between">
                     <Button variant="outline" className="border-red-500 text-red-400 hover:bg-red-950 hover:text-red-300">

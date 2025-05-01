@@ -2,7 +2,6 @@ import { listBots } from "@/lib/api";
 import { User } from "@/lib/auth";
 import { cookies } from "next/headers";
 import SettingsLayout from "../settingsLayout";
-import { mockTeams } from "../../mockData";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { LogOut, Settings, UserPlus } from "lucide-react";
@@ -25,10 +24,18 @@ export default async function MembersSettingsPage({
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
     const listData = await listBots(session.matrixId, session.token);
-    const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
+
+    if (!listData) {
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+
+    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) || listData.bots[0];
+    // TODO: get teams from the API
+    // @ts-expect-error - members is not a property of the data yet
+    selectedBot.members = []
 
     return (
-        <SettingsLayout currentTab={"members"} listData={listData} selectedTeam={selectedTeam} teamIdParam={teamIdParam}>
+        <SettingsLayout currentTab={"members"} listData={listData} selectedBot={selectedBot} teamIdParam={teamIdParam}>
             <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-gray-400">Team Members</h3>
                 <Dialog>
@@ -82,7 +89,8 @@ export default async function MembersSettingsPage({
 
             <ScrollArea className="h-[300px] rounded-md border border-gray-800">
                 <div className="p-4 space-y-3">
-                    {selectedTeam.members.map((member) => (
+                    {/* @ts-expect-error - members is not yet a thing */}
+                    {selectedBot.members.map((member) => (
                         <div key={member.id} className="flex items-center justify-between p-3 rounded-md bg-gray-900">
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10 border border-gray-800">
