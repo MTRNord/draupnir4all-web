@@ -15,9 +15,39 @@ type SessionContextType = {
     logout: () => Promise<void>;
     discoverHomeserver: (matrixId: string) => Promise<void>;
     fetchWithTokenRefresh: (url: string, options?: RequestInit) => Promise<Response>;
+    refreshOpenIDToken: () => Promise<void>;
 };
 
 const SessionContext = createContext<SessionContextType | undefined>(undefined);
+
+const refreshOpenIDToken = async (homeserverUrl: string, accessToken: string, user: User, setUser: (user: User) => void, setOpenIDExpiration: (expiration: number) => void, logout: () => Promise<void>) => {
+    try {
+        const openidToken = await generateOpenIDToken(homeserverUrl, user.matrixId, accessToken);
+
+        // Update the session cookie with the new OpenID token
+        const response = await fetch("/api/session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ openidToken, homeserverUrl, matrixId: user.matrixId, openidExpiration: Math.floor(Date.now() / 1000) + openidToken.expires_in }),
+        });
+        setOpenIDExpiration(openidToken.expires_in);
+
+        if (!response.ok) {
+            console.error("Failed to update session with new OpenID token:", response.status, response.statusText, response.body);
+            throw new Error("Failed to update session with new OpenID token.", {
+                cause: response.body
+            });
+        }
+
+        const userData = await response.json();
+        setUser(userData);
+    } catch (error) {
+        console.error("Failed to refresh OpenID token:", error);
+        await logout();
+
+        throw error;
+    }
+};
 
 export function SessionProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | undefined>();
@@ -25,38 +55,35 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const [homeserverUrl, setHomeserverUrl] = useState<string | undefined>();
     const [discoveryStatus, setDiscoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
     const [accessToken, setAccessToken] = useState<string | undefined>();
-    const [openidExpiration, setOpenIDExpiration] = useState<number | undefined>();
+    const [openidExpiration, setOpenIDExpiration] = useState<number | undefined>()
 
-    const refreshOpenIDToken = useCallback(async () => {
-        if (!homeserverUrl || !accessToken || !user) {
-            throw new Error("Missing required information to refresh OpenID token.");
-        }
-
+    const logout = useCallback(async () => {
         try {
-            const openidToken = await generateOpenIDToken(homeserverUrl, user.matrixId, accessToken);
+            await fetch("/api/session", { method: "DELETE" });
 
-            // Update the session cookie with the new OpenID token
-            const response = await fetch("/api/session", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ openidToken, homeserverUrl, matrixId: user.matrixId }),
-            });
-
-            if (!response.ok) {
-                throw new Error("Failed to update session with new OpenID token.");
+            if (homeserverUrl && accessToken) {
+                await realLogout(homeserverUrl, accessToken);
             }
 
-            const userData = await response.json();
-            setUser(userData);
+            setUser(undefined);
+            setAccessToken(undefined);
+            setOpenIDExpiration(undefined);
+
+            // Clear sessionStorage
+            sessionStorage.removeItem("accessToken");
+            sessionStorage.removeItem("openidExpiration");
         } catch (error) {
-            console.error("Failed to refresh OpenID token:", error);
-            throw error;
+            console.error("Logout failed:", error);
         }
-    }, [homeserverUrl, accessToken, user]);
+    }, [accessToken, homeserverUrl]);
 
     // Restore session from cookies on initial load
     useEffect(() => {
+        if (homeserverUrl && accessToken && user) {
+            return;
+        }
         const fetchSession = async () => {
+            console.log("Restoring session...");
             try {
                 if (openidExpiration) {
                     const now = Date.now();
@@ -64,7 +91,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
                     if (refreshTime > now) {
                         const timeout = setTimeout(() => {
-                            refreshOpenIDToken().catch((err) => {
+                            console.log("Refreshing OpenID token...");
+                            if (!homeserverUrl || !accessToken || !user) {
+                                throw new Error("Missing required information to refresh OpenID token.");
+                            }
+                            refreshOpenIDToken(homeserverUrl, accessToken, user, setUser, setOpenIDExpiration, logout).catch((err) => {
                                 console.error("Failed to refresh OpenID token:", err);
                             });
                         }, refreshTime - now);
@@ -87,7 +118,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         };
 
         fetchSession();
-    }, [openidExpiration, refreshOpenIDToken]);
+    }, [accessToken, homeserverUrl, logout, openidExpiration, user]);
 
 
 
@@ -99,7 +130,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
             if (refreshTime > now) {
                 const timeout = setTimeout(() => {
-                    refreshOpenIDToken().catch((err) => {
+                    if (!homeserverUrl || !accessToken || !user) {
+                        throw new Error("Missing required information to refresh OpenID token.");
+                    }
+                    refreshOpenIDToken(homeserverUrl, accessToken, user, setUser, setOpenIDExpiration, logout).catch((err) => {
                         console.error("Failed to refresh OpenID token:", err);
                     });
                 }, refreshTime - now);
@@ -107,7 +141,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 return () => clearTimeout(timeout);
             }
         }
-    }, [openidExpiration, refreshOpenIDToken]);
+    }, [accessToken, homeserverUrl, logout, openidExpiration, user]);
 
     const discoverHomeserver = async (matrixId: string) => {
         setDiscoveryStatus("loading");
@@ -173,7 +207,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             const response = await fetch("/api/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ openidToken, homeserverUrl, matrixId }),
+                body: JSON.stringify({ openidToken, homeserverUrl, matrixId, openidExpiration: Math.floor(Date.now() / 1000) + expires_in }),
             });
 
             if (!response.ok) {
@@ -214,7 +248,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             const response = await fetch("/api/session", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ openidToken, homeserverUrl, matrixId }),
+                body: JSON.stringify({ openidToken, homeserverUrl, matrixId, openidExpiration: Math.floor(Date.now() / 1000) + expires_in }),
             });
 
             if (!response.ok) {
@@ -234,32 +268,24 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const logout = async () => {
-        try {
-            await fetch("/api/session", { method: "DELETE" });
-
-            if (homeserverUrl && accessToken) {
-                await realLogout(homeserverUrl, accessToken);
-            }
-
-            setUser(undefined);
-            setAccessToken(undefined);
-            setOpenIDExpiration(undefined);
-
-            // Clear sessionStorage
-            sessionStorage.removeItem("accessToken");
-            sessionStorage.removeItem("openidExpiration");
-        } catch (error) {
-            console.error("Logout failed:", error);
+    const refreshOpenIDTokenHook = async () => {
+        if (!homeserverUrl || !accessToken || !user) {
+            throw new Error("Missing required information to refresh OpenID token.");
         }
-    };
+        console.log("Refreshing OpenID token...");
+
+        await refreshOpenIDToken(homeserverUrl, accessToken, user, setUser, setOpenIDExpiration, logout);
+    }
 
     const fetchWithTokenRefresh = async (url: string, options: RequestInit = {}) => {
         const response = await fetch(url, options);
 
         if (response.status === 401) {
             // Token expired, refresh it
-            await refreshOpenIDToken();
+            if (!homeserverUrl || !accessToken || !user) {
+                throw new Error("Missing required information to refresh OpenID token.");
+            }
+            await refreshOpenIDToken(homeserverUrl, accessToken, user, setUser, setOpenIDExpiration, logout);
 
             // Retry the request
             return fetch(url, options);
@@ -281,6 +307,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
                 logout,
                 discoverHomeserver,
                 fetchWithTokenRefresh,
+                refreshOpenIDToken: refreshOpenIDTokenHook,
             }}
         >
             {children}

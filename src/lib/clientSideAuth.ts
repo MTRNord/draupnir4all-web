@@ -11,6 +11,7 @@ export async function login(homeserverUrl: string, username: string, password: s
                 type: 'm.id.user',
                 user: username,
             },
+            refresh_token: false,
             initial_device_display_name: "Draupnir4All Web",
             password,
         }),

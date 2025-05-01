@@ -3,24 +3,26 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-    const { openidToken, homeserverUrl, matrixId } = await req.json();
+    const { openidToken, homeserverUrl, matrixId, openidExpiration } = await req.json();
 
     if (!openidToken) {
         return NextResponse.json({ error: "OpenID token is required" }, { status: 400 });
     }
-
-    const isValid = await validateOpenIDToken(openidToken);
-    if (!isValid) {
-        return NextResponse.json({ error: "Invalid OpenID token" }, { status: 401 });
+    if (!homeserverUrl) {
+        return NextResponse.json({ error: "Homeserver URL is required" }, { status: 400 });
+    }
+    if (!matrixId) {
+        return NextResponse.json({ error: "Matrix ID is required" }, { status: 400 });
+    }
+    if (!openidExpiration) {
+        return NextResponse.json({ error: "OpenID expiration is required" }, { status: 400 });
     }
 
     const user: User = {
-        id: "user_" + Math.random().toString(36).substring(2, 9),
-        displayName: matrixId,
         matrixId: matrixId,
         token: openidToken,
-        isAdmin: false,
         homeserverUrl: homeserverUrl,
+        openidExpiration: openidExpiration,
     };
 
     const response = NextResponse.json(user);
@@ -44,10 +46,4 @@ export async function DELETE(req: Request) {
     response.cookies.set("session", "", { httpOnly: true, path: "/", maxAge: 0 });
 
     return response;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function validateOpenIDToken(openidToken: string): Promise<boolean> {
-    // TODO: Implement OpenID token validation logic with the backend
-    return true;
 }

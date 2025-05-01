@@ -1,13 +1,10 @@
 'use client'
 
 export type User = {
-    id: string
     matrixId: string
-    displayName: string
-    avatarUrl?: string
-    isAdmin: boolean
     token: string
     homeserverUrl: string
+    openidExpiration: number
 }
 
 export function createSession(user: User) {

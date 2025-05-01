@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import { DashboardHeader } from "./dashboard-header";
-import { mockTeams } from "@/app/dashboard/mockData";
 import { ListResponse } from "@/lib/api";
 
 interface LayoutWrapperProps {
@@ -12,7 +11,7 @@ interface LayoutWrapperProps {
 
 export default function LayoutWrapper({ children, activeTab, teamIdParam, listData }: LayoutWrapperProps) {
     // Get first team id if there is no teamIdParam
-    const teamId = teamIdParam || mockTeams[0]?.id;
+    const teamId = teamIdParam || listData?.bots[0]?.id;
 
     return (
         <div className="flex min-h-screen flex-col bg-black text-white">

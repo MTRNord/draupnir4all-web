@@ -1,11 +1,10 @@
-"use client";
-
 import { ChevronDown, Crown } from "lucide-react";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import CreateBotModal from "../modals/create-bot";
 import Link from "next/link";
 import { ListResponse } from "@/lib/api";
+import { Skeleton } from "../ui/skeleton";
 
 export default function BotSelector({
     selectedTeam,
@@ -15,7 +14,7 @@ export default function BotSelector({
     listData: ListResponse | undefined;
 }) {
     if (!listData) {
-        return <div className="flex h-full w-full items-center justify-center">Loading...</div>
+        return <Skeleton className="h-10 w-64" />;
     }
 
     const bots = listData.bots;

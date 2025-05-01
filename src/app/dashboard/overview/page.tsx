@@ -2,7 +2,7 @@ import { AlertTriangle, Ban, CheckCircle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
-import { mockPolicyLists, mockReports, mockTeams } from "../mockData"
+import { mockPolicyLists, mockReports } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
 import LayoutWrapper from "@/components/dashboard/layoutWrapper"
 import { listBots } from "@/lib/api"
@@ -20,15 +20,21 @@ export default async function OverviewPage({
     if (!session.token) {
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
-    const listData = await listBots(session.token);
+    const listData = await listBots(session.matrixId, session.token);
 
-    const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
-    const reports = mockReports.filter((report) => report.teamId === selectedTeam.id);
-    const policyLists = mockPolicyLists.filter((list) => list.teamId === selectedTeam.id);
+    if (!listData) {
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+
+    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) || listData.bots[0];
+    // TODO: get reports and policy lists from the API
+    const reports = mockReports;
+    // TODO: get policy list details from the API
+    const policyLists = mockPolicyLists;
 
     return (
         <LayoutWrapper listData={listData} activeTab="overview" teamIdParam={teamIdParam}>
-            <TabNavigation selectedTeam={selectedTeam} currentTab="overview" />
+            <TabNavigation selectedBot={selectedBot} currentTab="overview" />
             <div className="space-y-8">
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     <Card className="border-gray-800 bg-gray-950">
@@ -36,7 +42,7 @@ export default async function OverviewPage({
                             <CardTitle className="text-sm font-medium">Protected Rooms</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="text-2xl font-bold">{selectedTeam.rooms.length}</div>
+                            <div className="text-2xl font-bold">{selectedBot.protectedRooms.length}</div>
                             <div className="flex justify-between items-center">
                                 <p className="text-xs text-gray-400">Monitored by this bot</p>
                                 <AddProtectedRoom />
@@ -130,7 +136,7 @@ export default async function OverviewPage({
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <ProtectedRomsList team={selectedTeam} />
+                            <ProtectedRomsList selectedBot={selectedBot} />
                         </CardContent>
                     </Card>
                 </div>

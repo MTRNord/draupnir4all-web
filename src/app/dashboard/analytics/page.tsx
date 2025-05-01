@@ -1,22 +1,18 @@
-"use client";
-
-import { useEffect, useState } from "react"
-import { Users } from "lucide-react"
-
+import { ChevronDown, Users } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
 import { Heatmap } from "@/components/analytics/heatmap"
-import { useSearchParams } from "next/navigation"
-import { mockTeams } from "../mockData"
-import TabNavigation from "../../../components/dashboard/tab-navigation";
 import { BannedServerData, generateHeatmapData, getBannedServersConfig, getMonthlyActivityConfig, getReportTypesConfig, getRoomActivityConfig, MonthlyActivityData, ReportTypeData, RoomActivityData } from "@/components/analytics/chart-configs";
 import { PlotlyChart } from "@/components/analytics/plotly-chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import InfoCardWithTrend from "@/components/analytics/info-card-with-trend";
 import LayoutWrapper from "@/components/dashboard/layoutWrapper";
+import { cookies } from "next/headers"
+import { User } from "@/lib/auth"
+import { listBots } from "@/lib/api"
+import TabNavigation from "@/components/dashboard/tab-navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 // Mock data for charts
 const roomActivityData: RoomActivityData[] = [
@@ -60,22 +56,27 @@ const monthlyActivityData: MonthlyActivityData[] = [
 ]
 
 
-export default function AnalyticsDashboard() {
-    const searchParams = useSearchParams()
-    const teamIdParam = searchParams.get("team") || undefined
-    const [selectedTeam, setSelectedTeam] = useState(mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0])
+export default async function AnalyticsDashboard({
+    searchParams,
+}: {
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+    const params = await searchParams;
+    const teamIdParam = params.team as string | undefined;
+    const timeRange = (params.timeRange as string | undefined) ?? "year"
+    const heatmapType = (params.heatmapType as string | undefined) ?? "reports"
+    const cookieStore = await cookies()
+    const session: User = JSON.parse(cookieStore.get("session")?.value || "{}")
+    if (!session.token) {
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
+    const listData = await listBots(session.matrixId, session.token);
 
+    if (!listData) {
+        return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
+    }
 
-    // Update selected team when URL param changes
-    useEffect(() => {
-        const team = mockTeams.find((t) => t.id === teamIdParam)
-        if (team) {
-            setSelectedTeam(team)
-        }
-    }, [teamIdParam])
-
-    const [timeRange, setTimeRange] = useState("year")
-    const [heatmapType, setHeatmapType] = useState("reports")
+    const selectedBot = listData.bots.find((team) => team.id === teamIdParam) || listData.bots[0];
 
     // Generate mock data
     const reportsHeatmapData = generateHeatmapData(1.5, 42)
@@ -91,21 +92,52 @@ export default function AnalyticsDashboard() {
     const reportChangePercent = 12
 
     return (
-        <LayoutWrapper activeTab="analytics" teamIdParam={teamIdParam}>
-            <TabNavigation selectedTeam={selectedTeam} currentTab="analytics" />
+        <LayoutWrapper listData={listData} activeTab="analytics" teamIdParam={teamIdParam}>
+            <TabNavigation selectedBot={selectedBot} currentTab="analytics" />
             <div className="space-y-4">
                 <div className="flex items-center  justify-end">
-                    <Select value={timeRange} onValueChange={setTimeRange}>
-                        <SelectTrigger className="w-[120px] h-8 bg-gray-900 border-gray-800">
-                            <SelectValue placeholder="Time Range" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-900 border-gray-800">
-                            <SelectItem value="month">Past Month</SelectItem>
-                            <SelectItem value="quarter">Past Quarter</SelectItem>
-                            <SelectItem value="year">Past Year</SelectItem>
-                            <SelectItem value="all">All Time</SelectItem>
-                        </SelectContent>
-                    </Select>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" className="h-8 w-[120px] bg-gray-900 border border-gray-800 text-gray-400 rounded-md flex items-center justify-between">
+                                <span>{timeRange.charAt(0).toUpperCase() + timeRange.slice(1)}</span>
+                                <ChevronDown className="ml-2 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="flex flex-col gap-1 w-56 bg-gray-900 border-gray-800">
+                            <DropdownMenuItem asChild>
+                                <Link
+                                    href={`/dashboard/analytics?team=${teamIdParam}&timeRange=month&heatmapType=${heatmapType}`}
+                                    className={timeRange === "month" ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800"}
+                                >
+                                    Past Month
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link
+                                    href={`/dashboard/analytics?team=${teamIdParam}&timeRange=quarter&heatmapType=${heatmapType}`}
+                                    className={timeRange === "quarter" ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800"}
+                                >
+                                    Past Quarter
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link
+                                    href={`/dashboard/analytics?team=${teamIdParam}&timeRange=year&heatmapType=${heatmapType}`}
+                                    className={timeRange === "year" ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800"}
+                                >
+                                    Past Year
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                                <Link
+                                    href={`/dashboard/analytics?team=${teamIdParam}&timeRange=all&heatmapType=${heatmapType}`}
+                                    className={timeRange === "all" ? "bg-gray-800 text-white" : "text-gray-400 hover:bg-gray-800"}
+                                >
+                                    All Time
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -124,13 +156,19 @@ export default function AnalyticsDashboard() {
                                     Visualization of moderation activity over time
                                 </CardDescription>
                             </div>
-                            <Tabs value={heatmapType} onValueChange={setHeatmapType}>
+                            <Tabs value={heatmapType}>
                                 <TabsList className="bg-gray-900">
-                                    <TabsTrigger value="reports" className="text-xs">
-                                        Reports
+                                    <TabsTrigger value="reports" className="text-xs" asChild>
+                                        <Link
+                                            href={`/dashboard/analytics?team=${teamIdParam}&timeRange=${timeRange}&heatmapType=reports`}>
+                                            Reports
+                                        </Link>
                                     </TabsTrigger>
-                                    <TabsTrigger value="bans" className="text-xs">
-                                        Bans
+                                    <TabsTrigger value="bans" className="text-xs" asChild>
+                                        <Link
+                                            href={`/dashboard/analytics?team=${teamIdParam}&timeRange=${timeRange}&heatmapType=bans`}>
+                                            Bans
+                                        </Link>
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
@@ -187,7 +225,7 @@ export default function AnalyticsDashboard() {
                             <PlotlyChart data={bannedServersConfig.data} layout={bannedServersConfig.layout} />
                             <div className="mt-4 flex items-center justify-center">
                                 <Button variant="outline" size="sm" className="border-gray-800 text-gray-400 hover:text-white" asChild>
-                                    <Link href={`/dashboard/bans?team=${selectedTeam.id}`}>
+                                    <Link href={`/dashboard/bans?team=${selectedBot.id}&heatmapType=${heatmapType}&timeRange=${timeRange}`}>
                                         <Users className="mr-2 h-4 w-4" />
                                         View All Banned Servers
                                     </Link>

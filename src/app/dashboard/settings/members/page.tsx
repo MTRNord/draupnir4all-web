@@ -24,7 +24,7 @@ export default async function MembersSettingsPage({
     if (!session.token) {
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
-    const listData = await listBots(session.token);
+    const listData = await listBots(session.matrixId, session.token);
     const selectedTeam = mockTeams.find((t) => t.id === teamIdParam) || mockTeams[0];
 
     return (
