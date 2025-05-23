@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -102,12 +102,11 @@ export default function AddBan({ filled, policyLists, header, buttonClasses }: A
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button
-                        variant="outline"
+                    <DialogCloseButton
                         className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
                     >
                         Cancel
-                    </Button>
+                    </DialogCloseButton>
                     <Button className="bg-red-600 text-white hover:bg-red-700">Add Ban</Button>
                 </DialogFooter>
             </DialogContent>

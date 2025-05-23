@@ -75,6 +75,7 @@ export function DashboardHeader({ activeTab, teamIdParam, listData }: DashboardH
                                             Overview
                                         </Button>
                                     </Link>
+                                    {/* Disabled because of missing draupnir support currently
                                     <Link href="/dashboard/reports">
                                         <Button
                                             variant={activeTab === "reports" ? "secondary" : "ghost"}
@@ -82,7 +83,7 @@ export function DashboardHeader({ activeTab, teamIdParam, listData }: DashboardH
                                         >
                                             Reports
                                         </Button>
-                                    </Link>
+                                    </Link>*/}
                                     <Link href="/dashboard/bans">
                                         <Button
                                             variant={activeTab === "bans" ? "secondary" : "ghost"}

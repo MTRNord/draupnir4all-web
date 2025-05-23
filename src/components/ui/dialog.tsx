@@ -108,6 +108,22 @@ const DialogDescription = forwardRef<
 ))
 DialogDescription.displayName = Description.displayName
 
+// Close Button
+const DialogCloseButton = forwardRef<
+  ComponentRef<typeof Close>,
+  ComponentPropsWithoutRef<typeof Close>
+>(({ className, ...props }, ref) => (
+  <Close
+    ref={ref}
+    className={cn(
+      "p-2 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+      className
+    )}
+    {...props}
+  />
+))
+DialogCloseButton.displayName = Close.displayName
+
 export {
   Dialog,
   DialogPortal,
@@ -119,4 +135,5 @@ export {
   DialogFooter,
   DialogTitle,
   DialogDescription,
+  DialogCloseButton,
 }

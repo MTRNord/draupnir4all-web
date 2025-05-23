@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
@@ -45,12 +45,11 @@ export default function AddProtectedRoom({ filled }: AddProtectedRoomProps) {
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button
-                        variant="outline"
+                    <DialogCloseButton
                         className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
                     >
                         Cancel
-                    </Button>
+                    </DialogCloseButton>
                     <Button className="bg-purple-600 text-white hover:bg-purple-700">Add Room</Button>
                 </DialogFooter>
             </DialogContent>

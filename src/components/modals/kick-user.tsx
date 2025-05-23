@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { UserX } from "lucide-react";
 
 export default function KickUserModal() {
@@ -22,6 +22,14 @@ export default function KickUserModal() {
                         Remove a user from your Matrix rooms using a kick instead of a ban. This will not prevent them from rejoining the room.
                     </DialogDescription>
                 </DialogHeader>
+                <DialogFooter>
+                    <DialogCloseButton
+                        className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
+                    >
+                        Cancel
+                    </DialogCloseButton>
+                    <Button className="bg-purple-600 text-white hover:bg-purple-700">Kick User</Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );

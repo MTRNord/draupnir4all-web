@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogCloseButton, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Trash2 } from "lucide-react";
 
 interface AreYouSureDialogProps {
@@ -24,12 +24,11 @@ export default function AreYouSureDialog({ description, titlePart }: AreYouSureD
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button
-                        variant="outline"
+                    <DialogCloseButton
                         className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
                     >
                         Cancel
-                    </Button>
+                    </DialogCloseButton>
                     <Button className="bg-red-600 text-white hover:bg-red-700">Remove {titlePart}</Button>
                 </DialogFooter>
             </DialogContent>

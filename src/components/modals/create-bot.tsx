@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogCloseButton } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings } from "lucide-react";
@@ -30,12 +30,11 @@ export default function CreateBotModal() {
 
                 </div>
                 <DialogFooter>
-                    <Button
-                        variant="outline"
+                    <DialogCloseButton
                         className="border-gray-700 text-gray-400 hover:bg-gray-900 hover:text-gray-300"
                     >
                         Cancel
-                    </Button>
+                    </DialogCloseButton>
                     <Button className="bg-purple-600 text-white hover:bg-purple-700">Create Bot</Button>
                 </DialogFooter>
             </DialogContent>

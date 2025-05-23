@@ -2,7 +2,7 @@ import { AlertTriangle, Ban, CheckCircle } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import AddProtectedRoom from "../../../components/modals/add-protected-room"
 import ProtectedRomsList from "../../../components/dashboard/protected-rooms-list"
-import { mockPolicyLists, mockReports } from "../mockData"
+import { mockPolicyLists } from "../mockData"
 import TabNavigation from "../../../components/dashboard/tab-navigation";
 import LayoutWrapper from "@/components/dashboard/layoutWrapper"
 import { listBots } from "@/lib/api"
@@ -31,8 +31,6 @@ export default async function OverviewPage({
         // TODO: Redirect to register page?
         return <div className="flex h-screen w-full items-center justify-center">Loading...</div>
     }
-    // TODO: get reports and policy lists from the API
-    const reports = mockReports;
     // TODO: get policy list details from the API
     const policyLists = mockPolicyLists;
 
@@ -53,6 +51,7 @@ export default async function OverviewPage({
                             </div>
                         </CardContent>
                     </Card>
+                    {/* Disabled until Druapnir has storage for it
                     <Card className="border-gray-800 bg-gray-950">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium">Active Reports</CardTitle>
@@ -61,7 +60,7 @@ export default async function OverviewPage({
                             <div className="text-2xl font-bold">{reports.length}</div>
                             <p className="text-xs text-gray-400">{reports.filter((r) => r.priority === "high").length} high priority</p>
                         </CardContent>
-                    </Card>
+                    </Card>*/}
                     <Card className="border-gray-800 bg-gray-950">
                         <CardHeader className="pb-2">
                             <CardTitle className="text-sm font-medium">Bans Issued</CardTitle>
