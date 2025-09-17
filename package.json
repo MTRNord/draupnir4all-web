@@ -39,7 +39,7 @@
     "@eslint/eslintrc": "^3",
     "@next/bundle-analyzer": "^15.3.1",
     "@types/node": "^20",
-    "@types/plotly.js": "^2.35.5",
+    "@types/plotly.js": "^3.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-plotly.js": "^2.6.3",
