@@ -38,7 +38,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@next/bundle-analyzer": "^15.3.1",
-    "@types/node": "^20",
+    "@types/node": "^22.0.0",
     "@types/plotly.js": "^2.35.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
